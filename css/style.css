@@ -671,6 +671,16 @@ select.control-input {
   background: var(--color-accent-light);
 }
 
+.solved-notice-block {
+  margin: 0.8rem 0 0;
+}
+.solved-notice-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+
 .problem-detail-grid {
   display: flex;
   flex-wrap: wrap;

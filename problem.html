@@ -71,6 +71,13 @@
       </div>
     </div>
 
+    <div class="problem-source-block solved-notice-block" id="solved-notice-block" hidden>
+      <div class="solved-notice-label" id="solved-notice-label"></div>
+      <div class="problem-source-paper" id="solution-paper"></div>
+      <div class="problem-source-authors" id="solution-paper-authors"></div>
+      <button id="copy-solution-bibtex-btn" class="copy-source-bibtex-btn" type="button" hidden>Copy solution BibTeX</button>
+    </div>
+
     <section class="problem-section">
       <h2>Background</h2>
       <p id="background-note" class="section-note" hidden></p>
@@ -740,6 +747,62 @@
       }
     }
 
+    function renderSolvedNotice(payload) {
+      const notice = payload.solved_notice;
+      const block = document.getElementById("solved-notice-block");
+      if (!notice || typeof notice !== "object" || !block) {
+        if (block) {
+          block.hidden = true;
+        }
+        return;
+      }
+      const labelEl = document.getElementById("solved-notice-label");
+      const paperEl = document.getElementById("solution-paper");
+      const authorsEl = document.getElementById("solution-paper-authors");
+      const bibtexBtn = document.getElementById("copy-solution-bibtex-btn");
+      const title = String(notice.title || "").trim();
+      if (!title || !paperEl || !authorsEl) {
+        block.hidden = true;
+        return;
+      }
+
+      const label = String(notice.label || "This problem has been solved here.").trim();
+      if (labelEl) {
+        labelEl.textContent = label;
+      }
+      const details = [];
+      if (notice.journal) {
+        details.push(String(notice.journal));
+      }
+      if (notice.publication_year) {
+        details.push(String(notice.publication_year));
+      }
+      const detailSuffix = details.length > 0 ? ` (${escapeHtml(details.join(", "))})` : "";
+      const url = String(notice.url || "").trim();
+      paperEl.innerHTML = url
+        ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(title)}</a>${detailSuffix}`
+        : `${escapeHtml(title)}${detailSuffix}`;
+
+      const authors = Array.isArray(notice.authors) ? notice.authors.filter(Boolean).map(String) : [];
+      authorsEl.textContent = authors.length > 0 ? authors.join(", ") : "";
+
+      const bibtex = String(notice.bibtex || "").trim();
+      if (bibtex && bibtexBtn) {
+        bibtexBtn.hidden = false;
+        bibtexBtn.textContent = "Copy solution BibTeX";
+        bibtexBtn.onclick = async () => {
+          await navigator.clipboard.writeText(bibtex);
+          bibtexBtn.textContent = "Copied!";
+          window.setTimeout(() => {
+            bibtexBtn.textContent = "Copy solution BibTeX";
+          }, 1400);
+        };
+      } else if (bibtexBtn) {
+        bibtexBtn.hidden = true;
+      }
+      block.hidden = false;
+    }
+
     function renderExtractionInfo(payload) {
       const model = payload.extraction_model || "";
       const effort = payload.extraction_reasoning_effort || "";
@@ -808,6 +871,7 @@
         }
       }
       renderSourcePaper(payload);
+      renderSolvedNotice(payload);
       renderExtractionInfo(payload);
       const areaRaw = effectiveProblemArea(payload);
       if (!areaRaw) {

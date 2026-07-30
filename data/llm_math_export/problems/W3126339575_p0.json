@@ -13,6 +13,19 @@
   "source_paper_journal": "Mathematics of Operations Research",
   "source_paper_publication_year": 2023,
   "source_paper_bibtex": "@article{Bir__2024, title={Shapley\u2013Scarf Housing Markets: Respecting Improvement, Integer Programming, and Kidney Exchange}, volume={49}, ISSN={1526-5471}, url={http://dx.doi.org/10.1287/moor.2022.0092}, DOI={10.1287/moor.2022.0092}, number={3}, journal={Mathematics of Operations Research}, publisher={Institute for Operations Research and the Management Sciences (INFORMS)}, author={Bir\u00f3, P\u00e9ter and Klijn, Flip and Klimentova, Xenia and Viana, Ana}, year={2024}, month=aug, pages={1938\u20131972} }",
+  "solved_notice": {
+    "label": "This problem has been solved in the following paper:",
+    "title": "The Core of Housing Markets from an Agent\u2019s Perspective: Is It Worth Sprucing up Your Home?",
+    "url": "https://doi.org/10.1287/moor.2023.0092",
+    "authors": [
+      "Ildik\u00f3 Schlotter",
+      "P\u00e9ter B\u00edr\u00f3",
+      "Tam\u00e1s Fleiner"
+    ],
+    "journal": "Mathematics of Operations Research",
+    "publication_year": 2025,
+    "bibtex": "@article{Schlotter_Biro_Fleiner_2025, title={The Core of Housing Markets from an Agent's Perspective: Is It Worth Sprucing up Your Home?}, volume={50}, ISSN={1526-5471}, url={https://doi.org/10.1287/moor.2023.0092}, DOI={10.1287/moor.2023.0092}, number={3}, journal={Mathematics of Operations Research}, author={Schlotter, Ildik{\\'o} and Bir{\\'o}, P{\\'e}ter and Fleiner, Tam{\\'a}s}, year={2025}, pages={2199--2225} }"
+  },
   "problem_index": 0,
   "pipeline_generated_at_utc": "2026-04-20T23:08:51.436215+00:00",
   "export_mode": "unverified",
