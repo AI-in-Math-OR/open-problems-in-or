@@ -16,8 +16,9 @@ window.SITE_CONFIG = Object.freeze({
   ],
   /**
    * Backend base URL for login-protected uploads (no trailing slash).
-   * Local default assumes `python -m app` from backend/ on port 8081.
-   * For GitHub Pages production, point this at the deployed API origin.
+   * Local: `python -m app` from backend/ → http://127.0.0.1:8081
+   * Production: Railway public HTTPS origin (see backend/README.md).
+   * Example: "https://opor-upload-api.up.railway.app"
    */
   uploadApiBaseUrl: "http://127.0.0.1:8081",
 });

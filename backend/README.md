@@ -2,7 +2,7 @@
 
 Small FastAPI service that backs `upload.html` on the static site.
 
-## Setup
+## Local setup
 
 ```bash
 cd backend
@@ -10,27 +10,62 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env        # then set UPLOAD_SEED_USERNAME / UPLOAD_SEED_PASSWORD
-```
-
-## Run
-
-```bash
-cd backend
-source .venv/bin/activate
 python -m app
 ```
 
 API listens on `http://127.0.0.1:8081` by default.
 
-In the static site, set `SITE_CONFIG.uploadApiBaseUrl` in `js/site-config.js` to that origin (already set for local dev).
-
-Serve the site separately, e.g. from the repo root:
+Serve the site from the repo root:
 
 ```bash
 python -m http.server 8000
 ```
 
 Then open http://127.0.0.1:8000/upload.html
+
+## Shared production (Railway)
+
+Anyone with the shared password uploads to **one** Railway volume (not each person's laptop).
+
+### 1. Create the service
+
+1. [Railway](https://railway.app) → New Project → Deploy from GitHub (this repo).
+2. Set the service **Root Directory** to `backend`.
+3. Railway will build via [`Dockerfile`](Dockerfile) / [`railway.toml`](railway.toml).
+
+### 2. Attach a volume
+
+1. Service → **Volumes** → Add volume.
+2. Mount path: `/data`
+3. Size: start with 1–5 GB.
+
+This persists SQLite + PDFs across deploys.
+
+### 3. Environment variables
+
+In Railway → Variables (do **not** commit these):
+
+| Variable | Example |
+|----------|---------|
+| `HOST` | `0.0.0.0` |
+| `DATA_DIR` | `/data` |
+| `UPLOAD_DIR` | `/data/uploads` |
+| `UPLOAD_SEED_USERNAME` | `pete` |
+| `UPLOAD_SEED_PASSWORD` | *(shared password)* |
+| `SESSION_SECRET` | *(long random string)* |
+| `CORS_ORIGINS` | `https://pranav-nuti.github.io,http://127.0.0.1:8000,http://localhost:8000` |
+
+`PORT` is set automatically by Railway.
+
+### 4. Public URL
+
+1. Service → **Settings** → **Networking** → Generate domain (e.g. `https://opor-upload-api.up.railway.app`).
+2. Confirm `GET https://<domain>/health` returns `{"status":"ok"}`.
+3. Set that origin (no trailing slash) in [`../js/site-config.js`](../js/site-config.js) as `uploadApiBaseUrl`, then commit/push so GitHub Pages picks it up.
+
+### 5. Smoke test
+
+Open the live Upload tab → log in → upload a small PDF → it should appear in the list and land on the Railway volume under `/data/uploads/`.
 
 ## Endpoints
 
@@ -43,14 +78,18 @@ Then open http://127.0.0.1:8000/upload.html
 | POST | `/api/uploads` | bearer | multipart `file` (PDF) |
 | GET | `/api/uploads` | bearer | List caller's uploads |
 
-## Data
+## Data layout
 
-- SQLite: `backend/data/upload_api.sqlite3` (gitignored)
-- Files: `backend/uploads/` (gitignored)
-- First boot seeds the admin user from `UPLOAD_SEED_*` env vars if the users table is empty.
+| Env | Local default | Railway |
+|-----|---------------|---------|
+| `DATA_DIR` | `backend/data/` | `/data` |
+| `UPLOAD_DIR` | `backend/data/uploads/` | `/data/uploads` |
+| DB | `$DATA_DIR/upload_api.sqlite3` | same |
+
+First boot seeds the admin user from `UPLOAD_SEED_*` if the users table is empty.
 
 ## Scaling later
 
-- Add users with hashed passwords (same `users` table / roles)
-- Swap local `uploads/` for S3/R2 without changing the HTTP contract
-- Point production `uploadApiBaseUrl` at the deployed API and rotate `SESSION_SECRET`
+- Add more users (same `users` table / roles)
+- Swap volume files for R2/S3 without changing the HTTP contract
+- Rotate `SESSION_SECRET` and the shared password periodically

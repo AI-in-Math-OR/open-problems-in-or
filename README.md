@@ -34,6 +34,10 @@ A website to share and explore open problems in operations research. Hosted on G
 4. Choose branch **main** (or your default branch) and folder **/ (root)**
 5. Save — your site will be live at `https://<username>.github.io/open-problems-in-or/`
 
+## Shared uploads (Railway)
+
+The Upload tab talks to whatever `SITE_CONFIG.uploadApiBaseUrl` is in `js/site-config.js`. For a **shared** store (anyone with the password), deploy `backend/` to Railway with a `/data` volume, then set that URL to the Railway HTTPS origin. Steps: [`backend/README.md`](backend/README.md).
+
 ## Maintainers
 
 Eric Fithian, Rad Niazadeh, Pranav Nuti

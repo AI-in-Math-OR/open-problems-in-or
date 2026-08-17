@@ -3,6 +3,7 @@ backend/.env
 backend/.venv/
 backend/data/
 backend/uploads/
+backend/**/uploads/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/**/*.pyc
