@@ -16,9 +16,7 @@ window.SITE_CONFIG = Object.freeze({
   ],
   /**
    * Backend base URL for login-protected uploads (no trailing slash).
-   * Local: `python -m app` from backend/ → http://127.0.0.1:8081
-   * Production: Railway public HTTPS origin (see backend/README.md).
-   * Example: "https://opor-upload-api.up.railway.app"
+   * Production: Railway FastAPI service. Local API is http://127.0.0.1:8081.
    */
-  uploadApiBaseUrl: "http://127.0.0.1:8081",
+  uploadApiBaseUrl: "https://open-problems-in-or-production.up.railway.app",
 });
