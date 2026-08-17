@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload · Open Problems in Operations Research</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-row">
+      <h1 class="site-title"><a href="index.html">Open Problems in Operations Research</a></h1>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="site-nav-link">Problems</a>
+        <a href="upload.html" class="site-nav-link" aria-current="page">Upload</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="upload-page-header">
+      <h2 class="upload-page-title">Upload</h2>
+      <p class="upload-page-lede">
+        Sign in to upload PDF solution or partial-progress write-ups.
+        Files are stored on the upload backend; they are not published to the
+        public problem pages until reviewed.
+      </p>
+    </div>
+
+    <div id="upload-status-banner" class="upload-status-banner" role="status"></div>
+
+    <section id="login-panel" class="upload-panel" aria-labelledby="login-panel-title">
+      <h3 id="login-panel-title" class="upload-panel-title">Sign in</h3>
+      <form id="login-form" class="upload-form" novalidate>
+        <div class="upload-field">
+          <label for="login-username">Username</label>
+          <input id="login-username" name="username" type="text" autocomplete="username" required>
+        </div>
+        <div class="upload-field">
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <p id="login-error" class="upload-form-error" role="alert" aria-live="polite"></p>
+        <div class="upload-actions">
+          <button type="submit" class="upload-btn" id="login-submit">Sign in</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="upload-panel" class="upload-panel" hidden aria-labelledby="upload-panel-title">
+      <div class="upload-session-bar">
+        <span id="session-label">Signed in</span>
+        <button type="button" class="upload-btn upload-btn-secondary" id="logout-btn">Sign out</button>
+      </div>
+
+      <h3 id="upload-panel-title" class="upload-panel-title">Upload PDF</h3>
+      <div
+        id="upload-dropzone"
+        class="upload-dropzone"
+        role="button"
+        tabindex="0"
+        aria-controls="upload-file-input"
+        aria-label="Choose a PDF to upload"
+      >
+        <p class="upload-dropzone-title">Drop a PDF here, or click to browse</p>
+        <p class="upload-dropzone-hint">PDF only · max size enforced by the server when connected</p>
+        <input id="upload-file-input" class="upload-file-input" type="file" accept="application/pdf,.pdf">
+      </div>
+      <p id="upload-error" class="upload-form-error" role="alert" aria-live="polite"></p>
+
+      <h3 class="upload-panel-title" style="margin-top: 1.75rem;">Recent uploads</h3>
+      <p id="upload-empty" class="upload-empty">No uploads yet.</p>
+      <ul id="upload-list" class="upload-list" hidden></ul>
+    </section>
+  </main>
+
+  <script src="js/site-config.js"></script>
+  <script src="js/upload.js"></script>
+</body>
+</html>

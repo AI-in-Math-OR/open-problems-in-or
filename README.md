@@ -4,17 +4,27 @@ A website to share and explore open problems in operations research. Hosted on G
 
 ## Structure
 
-- **Home page** (`index.html`): Paginated list of all open problems
-- **Problem pages** (`problems/001.html`, etc.): Full problem details with LaTeX-rendered notation
+- **Problems** (`index.html`, `problem.html`): Browse and view open problems (data under `data/llm_math_export/`)
+- **Upload** (`upload.html`): Login-protected PDF intake UI (`js/upload.js`)
+- **Upload API** (`backend/`): FastAPI service for auth + PDF storage (see `backend/README.md`)
+- Shared assets: `css/style.css`, `js/site-config.js`, …
 
 ## Local Development
 
 1. Clone the repository
-2. Open `index.html` in a browser, or run a simple local server:
+2. Start the upload API:
+   ```bash
+   cd backend
+   python -m venv .venv && source .venv/bin/activate
+   pip install -r requirements.txt
+   cp .env.example .env   # set UPLOAD_SEED_USERNAME / UPLOAD_SEED_PASSWORD
+   python -m app
+   ```
+3. In another terminal, serve the static site from the repo root:
    ```bash
    python -m http.server 8000
    ```
-3. Visit http://localhost:8000
+4. Visit http://localhost:8000 and http://localhost:8000/upload.html
 
 ## Deploying to GitHub Pages
 

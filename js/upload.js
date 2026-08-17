@@ -1,0 +1,319 @@
+/**
+ * Upload page scaffold: login UI + PDF intake shell.
+ *
+ * Talks to SITE_CONFIG.uploadApiBaseUrl when set:
+ *   POST {base}/auth/login   {username, password} → {user, token?}
+ *   POST {base}/auth/logout
+ *   GET  {base}/auth/me
+ *   POST {base}/api/uploads  multipart file
+ *   GET  {base}/api/uploads
+ *
+ * With an empty uploadApiBaseUrl, the UI stays interactive but API calls
+ * are blocked with a clear scaffold message (no fake local auth).
+ */
+(function () {
+  "use strict";
+
+  const SESSION_KEY = "opor_upload_session_v1";
+  const config = window.SITE_CONFIG || {};
+  const apiBase = String(config.uploadApiBaseUrl || "").replace(/\/$/, "");
+
+  const els = {
+    banner: document.getElementById("upload-status-banner"),
+    loginPanel: document.getElementById("login-panel"),
+    uploadPanel: document.getElementById("upload-panel"),
+    loginForm: document.getElementById("login-form"),
+    loginError: document.getElementById("login-error"),
+    loginSubmit: document.getElementById("login-submit"),
+    sessionLabel: document.getElementById("session-label"),
+    logoutBtn: document.getElementById("logout-btn"),
+    dropzone: document.getElementById("upload-dropzone"),
+    fileInput: document.getElementById("upload-file-input"),
+    uploadError: document.getElementById("upload-error"),
+    uploadList: document.getElementById("upload-list"),
+    uploadEmpty: document.getElementById("upload-empty"),
+  };
+
+  function apiConfigured() {
+    return Boolean(apiBase);
+  }
+
+  function loadSession() {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function saveSession(session) {
+    if (!session) {
+      sessionStorage.removeItem(SESSION_KEY);
+      return;
+    }
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  }
+
+  function setBanner(text) {
+    if (!els.banner) return;
+    els.banner.textContent = text;
+  }
+
+  function setError(node, message) {
+    if (node) node.textContent = message || "";
+  }
+
+  function authHeaders(session) {
+    const headers = { Accept: "application/json" };
+    if (session && session.token) {
+      headers.Authorization = `Bearer ${session.token}`;
+    }
+    return headers;
+  }
+
+  async function apiFetch(path, options = {}, session) {
+    if (!apiConfigured()) {
+      const err = new Error(
+        "Upload backend is not configured yet (SITE_CONFIG.uploadApiBaseUrl is empty)."
+      );
+      err.code = "SCAFFOLD";
+      throw err;
+    }
+    const opts = { ...options, credentials: "include" };
+    opts.headers = { ...authHeaders(session), ...(options.headers || {}) };
+    const res = await fetch(`${apiBase}${path}`, opts);
+    let body = null;
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      body = await res.json();
+    } else {
+      body = await res.text();
+    }
+    if (!res.ok) {
+      const detail =
+        (body && body.detail) ||
+        (body && body.message) ||
+        (typeof body === "string" ? body : "") ||
+        res.statusText;
+      const err = new Error(detail || `Request failed (${res.status})`);
+      err.status = res.status;
+      throw err;
+    }
+    return body;
+  }
+
+  function renderSession(session) {
+    const signedIn = Boolean(session && session.username);
+    els.loginPanel.hidden = signedIn;
+    els.uploadPanel.hidden = !signedIn;
+    if (signedIn) {
+      els.sessionLabel.textContent = `Signed in as ${session.username}`;
+    }
+    setError(els.loginError, "");
+    setError(els.uploadError, "");
+  }
+
+  function renderUploads(items) {
+    const list = Array.isArray(items) ? items : [];
+    els.uploadList.innerHTML = "";
+    if (!list.length) {
+      els.uploadEmpty.hidden = false;
+      els.uploadList.hidden = true;
+      return;
+    }
+    els.uploadEmpty.hidden = true;
+    els.uploadList.hidden = false;
+    for (const item of list) {
+      const li = document.createElement("li");
+      li.className = "upload-list-item";
+      const name = document.createElement("span");
+      name.textContent = item.filename || item.name || "upload.pdf";
+      const meta = document.createElement("span");
+      meta.className = "upload-list-meta";
+      const stamp = item.uploaded_at || item.created_at || "";
+      const status = item.status || "received";
+      meta.textContent = stamp ? `${status} · ${stamp}` : status;
+      li.appendChild(name);
+      li.appendChild(meta);
+      els.uploadList.appendChild(li);
+    }
+  }
+
+  async function refreshUploads(session) {
+    if (!apiConfigured()) {
+      renderUploads([]);
+      return;
+    }
+    try {
+      const data = await apiFetch("/api/uploads", { method: "GET" }, session);
+      renderUploads(data.items || data.uploads || data || []);
+    } catch (err) {
+      if (err.status === 401) {
+        saveSession(null);
+        renderSession(null);
+      }
+      setError(els.uploadError, err.message);
+    }
+  }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    setError(els.loginError, "");
+    const username = String(els.loginForm.username.value || "").trim();
+    const password = String(els.loginForm.password.value || "");
+    if (!username || !password) {
+      setError(els.loginError, "Enter a username and password.");
+      return;
+    }
+
+    els.loginSubmit.disabled = true;
+    try {
+      const data = await apiFetch(
+        "/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        },
+        null
+      );
+      const session = {
+        username: (data.user && data.user.username) || data.username || username,
+        token: data.token || data.access_token || null,
+      };
+      saveSession(session);
+      renderSession(session);
+      els.loginForm.reset();
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.loginError, err.message);
+    } finally {
+      els.loginSubmit.disabled = false;
+    }
+  }
+
+  async function handleLogout() {
+    const session = loadSession();
+    setError(els.uploadError, "");
+    try {
+      if (apiConfigured()) {
+        await apiFetch("/auth/logout", { method: "POST" }, session);
+      }
+    } catch (_err) {
+      // Still clear local session.
+    }
+    saveSession(null);
+    renderSession(null);
+    renderUploads([]);
+  }
+
+  async function handleFile(file) {
+    setError(els.uploadError, "");
+    if (!file) return;
+    if (file.type && file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+      setError(els.uploadError, "Only PDF files are accepted.");
+      return;
+    }
+    const session = loadSession();
+    if (!session) {
+      setError(els.uploadError, "Sign in to upload.");
+      return;
+    }
+
+    els.dropzone.classList.add("is-disabled");
+    try {
+      const body = new FormData();
+      body.append("file", file, file.name);
+      await apiFetch(
+        "/api/uploads",
+        {
+          method: "POST",
+          body,
+          // Let the browser set multipart boundary; do not force JSON headers.
+          headers: session.token ? { Authorization: `Bearer ${session.token}` } : {},
+        },
+        session
+      );
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.uploadError, err.message);
+    } finally {
+      els.dropzone.classList.remove("is-disabled");
+      els.fileInput.value = "";
+    }
+  }
+
+  function wireDropzone() {
+    const openPicker = () => {
+      if (els.dropzone.classList.contains("is-disabled")) return;
+      els.fileInput.click();
+    };
+    els.dropzone.addEventListener("click", openPicker);
+    els.dropzone.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openPicker();
+      }
+    });
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files && els.fileInput.files[0];
+      handleFile(file);
+    });
+    ["dragenter", "dragover"].forEach((name) => {
+      els.dropzone.addEventListener(name, (event) => {
+        event.preventDefault();
+        els.dropzone.classList.add("is-dragover");
+      });
+    });
+    ["dragleave", "drop"].forEach((name) => {
+      els.dropzone.addEventListener(name, (event) => {
+        event.preventDefault();
+        els.dropzone.classList.remove("is-dragover");
+      });
+    });
+    els.dropzone.addEventListener("drop", (event) => {
+      const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+      handleFile(file);
+    });
+  }
+
+  async function boot() {
+    if (apiConfigured()) {
+      setBanner(`Connected to upload API at ${apiBase}`);
+    } else {
+      setBanner(
+        "Scaffold mode: set SITE_CONFIG.uploadApiBaseUrl in js/site-config.js to enable login and uploads against the backend."
+      );
+    }
+
+    const session = loadSession();
+    renderSession(session);
+    renderUploads([]);
+
+    els.loginForm.addEventListener("submit", handleLogin);
+    els.logoutBtn.addEventListener("click", handleLogout);
+    wireDropzone();
+
+    if (session && apiConfigured()) {
+      try {
+        const me = await apiFetch("/auth/me", { method: "GET" }, session);
+        const username = (me.user && me.user.username) || me.username || session.username;
+        saveSession({ ...session, username });
+        renderSession(loadSession());
+        await refreshUploads(loadSession());
+      } catch (err) {
+        if (err.status === 401) {
+          saveSession(null);
+          renderSession(null);
+        }
+      }
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();

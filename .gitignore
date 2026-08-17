@@ -1,0 +1,9 @@
+# Local secrets and runtime data for the upload API
+backend/.env
+backend/.venv/
+backend/data/
+backend/uploads/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+.DS_Store

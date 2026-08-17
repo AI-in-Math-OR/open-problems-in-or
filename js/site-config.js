@@ -14,4 +14,10 @@ window.SITE_CONFIG = Object.freeze({
       shortLabel: "Economics and Computation (EC)",
     },
   ],
+  /**
+   * Backend base URL for login-protected uploads (no trailing slash).
+   * Local default assumes `python -m app` from backend/ on port 8081.
+   * For GitHub Pages production, point this at the deployed API origin.
+   */
+  uploadApiBaseUrl: "http://127.0.0.1:8081",
 });
