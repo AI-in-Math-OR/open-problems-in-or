@@ -1508,6 +1508,13 @@ a.problem-seq-btn:hover .problem-seq-btn-label {
   line-height: 1.6;
 }
 
+.field-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .contact-field textarea {
   width: 100%;
   font-family: var(--font-body);

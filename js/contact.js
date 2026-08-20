@@ -101,10 +101,18 @@
   async function postTo(key, fields) {
     const body = new FormData();
     body.append("access_key", key);
+
+    // The message is always sent by the form service under the site's own name;
+    // the visitor's address is carried as content and as Reply-To, never as the
+    // sending identity. Sending as the visitor would be spoofing their domain,
+    // which lands the mail in spam and lets anyone send mail appearing to be
+    // from someone else.
+    body.append("from_name", config().fromName ?? "Open Problems in OR");
+    body.append("subject", subjectFor(fields));
+    body.append("replyto", fields.email);
+
     body.append("name", fields.name);
     body.append("email", fields.email);
-    body.append("subject", subjectFor(fields));
-    body.append("from_name", config().fromName ?? "Open Problems in OR");
     body.append("message", fields.message);
 
     const response = await fetch(ENDPOINT, { method: "POST", body });
