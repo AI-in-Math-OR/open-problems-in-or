@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us · Open Problems in Operations Research</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-row">
+      <h1 class="site-title"><a href="index.html">Open Problems in Operations Research</a></h1>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="site-nav-link">Problems</a>
+        <a href="upload.html" class="site-nav-link">Upload</a>
+        <a href="summary.html" class="site-nav-link">Summary of Results</a>
+        <a href="contact.html" class="site-nav-link" aria-current="page">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h2 class="page-title">Contact Us</h2>
+      <p class="page-lede">
+        General comments and feedback on the project are welcome. Messages sent from
+        this page reach the maintainers directly.
+      </p>
+    </div>
+
+    <div class="contact-layout">
+      <div class="contact-form-col">
+        <form id="contact-form" class="upload-form" novalidate>
+          <div class="upload-field">
+            <label for="contact-name">Your name</label>
+            <input id="contact-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="upload-field">
+            <label for="contact-email">Your email</label>
+            <input id="contact-email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="upload-field">
+            <label for="contact-subject">Subject</label>
+            <input id="contact-subject" name="user_subject" type="text">
+          </div>
+          <div class="upload-field contact-field">
+            <label for="contact-message">Message</label>
+            <textarea id="contact-message" name="message" rows="8" required></textarea>
+          </div>
+
+          <!-- Honeypot: bots fill this in, humans never see it. -->
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display: none;">
+
+          <div class="upload-actions">
+            <button type="submit" class="upload-btn" id="contact-submit">Send message</button>
+          </div>
+          <p id="contact-result" class="contact-result" role="status" aria-live="polite" hidden></p>
+        </form>
+      </div>
+
+      <aside class="contact-aside">
+        <h3 class="contact-aside-title">Or email us directly</h3>
+        <p id="contact-direct-emails"></p>
+        <h3 class="contact-aside-title">Reporting a problem entry</h3>
+        <p>
+          If a specific open problem is misstated, or has since been resolved in the
+          literature, mention its number or ID so we can trace it back to the source
+          paper.
+        </p>
+        <h3 class="contact-aside-title">Submitting a write-up</h3>
+        <p>
+          Solution and partial-progress PDFs go through the
+          <a href="upload.html">Upload</a> page rather than this form.
+        </p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-maintainers">Maintainers: Eric Fithian, Rad Niazadeh, Pranav Nuti</div>
+      <div>Open Problems in Operations Research</div>
+      <div>We acknowledge funding from the Center for Applied Artificial Intelligence at the University of Chicago Booth School of Business.</div>
+    </div>
+  </footer>
+
+  <script src="js/site-config.js"></script>
+  <script src="js/contact.js"></script>
+</body>
+</html>

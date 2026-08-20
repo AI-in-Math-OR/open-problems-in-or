@@ -1,0 +1,439 @@
+/**
+ * Summary of Results — aggregates the published export at page load so the
+ * figures never drift from the problem listings.
+ */
+(function () {
+  "use strict";
+
+  const EXPORT_INDEX = "data/llm_math_export/index.json";
+  const PROGRESS_INDEX = "data/llm_math_export/solution_progress/index.json";
+  const TOP_AREAS = 16;
+
+  // Tones mirror the pill colours used on the problem pages, so a reader who has
+  // seen a "solution" pill recognises the same green here.
+  const OUTCOMES = [
+    { key: "solved", label: "Solution", tone: "positive" },
+    { key: "partial", label: "Partial progress", tone: "caution" },
+    { key: "none", label: "No write-up yet", tone: "neutral" },
+  ];
+
+  const SOLUTION_TYPES = [
+    { key: "direct_proof", label: "Direct proof", tone: "teal" },
+    { key: "counterexample", label: "Counterexample", tone: "clay" },
+  ];
+
+  const SUITABILITY_LEVELS = [
+    { key: "high", label: "High", tone: "positive" },
+    { key: "medium", label: "Medium", tone: "caution" },
+    { key: "low", label: "Low", tone: "neutral" },
+  ];
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function pct(value, total) {
+    return total > 0 ? (value / total) * 100 : 0;
+  }
+
+  function formatPct(value, total) {
+    if (total <= 0) return "—";
+    const share = (value / total) * 100;
+    return `${share < 10 ? share.toFixed(1) : Math.round(share)}%`;
+  }
+
+  function effectiveArea(problem) {
+    const primary = String(problem?.area ?? "").trim();
+    if (primary) return primary;
+    const evalLabel = String(problem?.evaluation_area_label ?? "").trim();
+    if (evalLabel && evalLabel.toLowerCase() !== "none") return evalLabel;
+    return String(problem?.subject_classification ?? "").trim();
+  }
+
+  function categoryFor(problem) {
+    const taxonomy = window.TAXONOMY ?? {};
+    const known = new Set(taxonomy.categories ?? []);
+    const explicit = String(problem?.category ?? "").trim();
+    if (explicit && known.has(explicit)) return explicit;
+    const map = taxonomy.areaToCategory ?? {};
+    return map[effectiveArea(problem).toLowerCase()] || taxonomy.fallback || "Other";
+  }
+
+  /** Joins each problem to its solution/partial write-ups and derives one outcome. */
+  function buildDataset(exportPayload, progressPayload) {
+    const progress = progressPayload?.problems ?? {};
+    return (exportPayload.problems ?? []).map((problem) => {
+      const entry = progress[problem.problem_id] ?? {};
+      const solutions = Array.isArray(entry.solutions) ? entry.solutions : [];
+      const partials = Array.isArray(entry.partial_progress) ? entry.partial_progress : [];
+      const classifications = solutions
+        .map((s) => String(s?.classification ?? "").trim())
+        .filter(Boolean);
+      return {
+        problem,
+        area: effectiveArea(problem) || "unspecified",
+        category: categoryFor(problem),
+        journal: String(problem.source_paper_journal ?? "").trim() || "Unknown",
+        year: problem.source_paper_publication_year ?? null,
+        solutions,
+        partials,
+        classifications,
+        outcome: solutions.length ? "solved" : partials.length ? "partial" : "none",
+      };
+    });
+  }
+
+  function tally(rows, keyFn) {
+    const buckets = new Map();
+    rows.forEach((row) => {
+      const key = keyFn(row);
+      if (key === null || key === undefined || key === "") return;
+      const bucket = buckets.get(key) ?? { key, total: 0, solved: 0, partial: 0, none: 0 };
+      bucket.total += 1;
+      bucket[row.outcome] += 1;
+      buckets.set(key, bucket);
+    });
+    return [...buckets.values()];
+  }
+
+  function legend(items) {
+    const wrap = el("div", "chart-legend");
+    items.forEach((item) => {
+      const entry = el("span", "chart-legend-item");
+      entry.appendChild(el("span", `chart-swatch tone-${item.tone}`));
+      entry.appendChild(el("span", null, item.label));
+      wrap.appendChild(entry);
+    });
+    return wrap;
+  }
+
+  /** A single full-width bar split into proportional segments. */
+  function stackedBar(segments, total) {
+    const track = el("div", "bar-track");
+    segments.forEach((segment) => {
+      if (!segment.value) return;
+      const seg = el("div", `bar-seg tone-${segment.tone}`);
+      seg.style.width = `${pct(segment.value, total)}%`;
+      seg.title = `${segment.label}: ${segment.value} of ${total} (${formatPct(segment.value, total)})`;
+      track.appendChild(seg);
+    });
+    if (!total) track.appendChild(el("div", "bar-seg bar-seg-empty"));
+    return track;
+  }
+
+  /** Rows of label + stacked bar + count, scaled against the largest row. */
+  function barRows(container, rows, segmentDefs, maxTotal) {
+    container.replaceChildren();
+    const scale = maxTotal || Math.max(...rows.map((r) => r.total), 1);
+    rows.forEach((row) => {
+      const line = el("div", "bar-row");
+      line.appendChild(el("div", "bar-label", row.label));
+
+      const shell = el("div", "bar-shell");
+      const inner = el("div", "bar-inner");
+      inner.style.width = `${pct(row.total, scale)}%`;
+      inner.appendChild(stackedBar(
+        segmentDefs.map((def) => ({ ...def, value: row[def.key] ?? 0 })),
+        row.total
+      ));
+      shell.appendChild(inner);
+      line.appendChild(shell);
+
+      line.appendChild(el("div", "bar-total", row.total));
+      container.appendChild(line);
+    });
+  }
+
+  function renderKpis(rows, exportPayload) {
+    const grid = document.getElementById("kpi-grid");
+    const total = rows.length;
+    const solved = rows.filter((r) => r.outcome === "solved").length;
+    const partial = rows.filter((r) => r.outcome === "partial").length;
+    const none = rows.filter((r) => r.outcome === "none").length;
+    const solutionDocs = rows.reduce((sum, r) => sum + r.solutions.length, 0);
+    const partialDocs = rows.reduce((sum, r) => sum + r.partials.length, 0);
+
+    const items = [
+      { value: total, label: "Open problems catalogued", note: `${exportPayload?.counts?.with_literature_review ?? 0} with a literature review` },
+      { value: solved, label: "Problems with a solution", note: `${formatPct(solved, total)} of all problems`, tone: "positive" },
+      { value: partial, label: "Problems with partial progress", note: `${formatPct(partial, total)} of all problems`, tone: "caution" },
+      { value: none, label: "Problems not yet attempted", note: `${formatPct(none, total)} of all problems` },
+      { value: solutionDocs, label: "Solution write-ups" },
+      { value: partialDocs, label: "Partial-progress write-ups" },
+    ];
+
+    grid.replaceChildren();
+    items.forEach((item) => {
+      const cell = el("div", `kpi${item.tone ? ` kpi-${item.tone}` : ""}`);
+      cell.appendChild(el("dt", "kpi-value", item.value));
+      const dd = el("dd", "kpi-meta");
+      dd.appendChild(el("span", "kpi-label", item.label));
+      if (item.note) dd.appendChild(el("span", "kpi-note", item.note));
+      cell.appendChild(dd);
+      grid.appendChild(cell);
+    });
+  }
+
+  function renderOutcomeBar(rows) {
+    const host = document.getElementById("outcome-bar");
+    const total = rows.length;
+    const counts = {
+      solved: rows.filter((r) => r.outcome === "solved").length,
+      partial: rows.filter((r) => r.outcome === "partial").length,
+      none: rows.filter((r) => r.outcome === "none").length,
+    };
+    host.replaceChildren();
+    host.appendChild(legend(OUTCOMES));
+
+    const wide = el("div", "bar-wide");
+    wide.appendChild(stackedBar(
+      OUTCOMES.map((o) => ({ ...o, value: counts[o.key] })),
+      total
+    ));
+    host.appendChild(wide);
+
+    const caption = el("div", "chart-caption");
+    OUTCOMES.forEach((o) => {
+      caption.appendChild(el("span", "chart-caption-item",
+        `${o.label}: ${counts[o.key]} (${formatPct(counts[o.key], total)})`));
+    });
+    host.appendChild(caption);
+  }
+
+  function renderSolutionTypes(rows) {
+    const host = document.getElementById("solution-type-bar");
+    const counts = { direct_proof: 0, counterexample: 0 };
+    rows.forEach((row) => row.classifications.forEach((c) => {
+      if (c in counts) counts[c] += 1;
+    }));
+    const total = counts.direct_proof + counts.counterexample;
+
+    host.replaceChildren();
+    host.appendChild(legend(SOLUTION_TYPES));
+
+    const wide = el("div", "bar-wide");
+    wide.appendChild(stackedBar(
+      SOLUTION_TYPES.map((t) => ({ ...t, value: counts[t.key] })),
+      total
+    ));
+    host.appendChild(wide);
+
+    const caption = el("div", "chart-caption");
+    SOLUTION_TYPES.forEach((t) => {
+      caption.appendChild(el("span", "chart-caption-item",
+        `${t.label}: ${counts[t.key]} (${formatPct(counts[t.key], total)})`));
+    });
+    host.appendChild(caption);
+  }
+
+  function renderGrouped(hostId, rows, keyFn, options) {
+    const host = document.getElementById(hostId);
+    const buckets = tally(rows, keyFn)
+      .sort((a, b) => b.total - a.total || String(a.key).localeCompare(String(b.key)));
+    const shown = options?.limit ? buckets.slice(0, options.limit) : buckets;
+
+    host.replaceChildren();
+    host.appendChild(legend(OUTCOMES));
+    const chart = el("div", "bar-rows");
+    barRows(chart, shown.map((b) => ({ ...b, label: b.key })), OUTCOMES);
+    host.appendChild(chart);
+
+    if (options?.limit && buckets.length > options.limit) {
+      host.appendChild(el("p", "chart-footnote",
+        `Showing the ${options.limit} largest of ${buckets.length} ${options.noun}.`));
+    }
+  }
+
+  function renderSuitability(rows) {
+    const host = document.getElementById("suitability-charts");
+    host.replaceChildren();
+
+    const fields = [
+      { field: "counterexample_suitability", title: "Counterexample search" },
+      { field: "alphaevolve_suitability", title: "AlphaEvolve-style search" },
+    ];
+
+    fields.forEach(({ field, title }) => {
+      const panel = el("div", "chart-panel");
+      panel.appendChild(el("h4", "chart-panel-title", title));
+      const chart = el("div", "bar-rows");
+      const total = rows.length;
+      const counts = new Map(SUITABILITY_LEVELS.map((l) => [l.key, 0]));
+      rows.forEach((row) => {
+        const value = String(row.problem?.[field] ?? "").trim().toLowerCase();
+        if (counts.has(value)) counts.set(value, counts.get(value) + 1);
+      });
+      const maxCount = Math.max(...counts.values(), 1);
+      SUITABILITY_LEVELS.forEach((level) => {
+        const value = counts.get(level.key) ?? 0;
+        const line = el("div", "bar-row");
+        line.appendChild(el("div", "bar-label bar-label-short", level.label));
+        const shell = el("div", "bar-shell");
+        const inner = el("div", "bar-inner");
+        inner.style.width = `${pct(value, maxCount)}%`;
+        const track = el("div", "bar-track");
+        const seg = el("div", `bar-seg tone-${level.tone}`);
+        seg.style.width = "100%";
+        seg.title = `${level.label}: ${value} of ${total} (${formatPct(value, total)})`;
+        track.appendChild(seg);
+        inner.appendChild(track);
+        shell.appendChild(inner);
+        line.appendChild(shell);
+        line.appendChild(el("div", "bar-total", value));
+        chart.appendChild(line);
+      });
+      panel.appendChild(chart);
+      host.appendChild(panel);
+    });
+  }
+
+  function renderYears(rows) {
+    const host = document.getElementById("year-chart");
+    const counts = new Map();
+    rows.forEach((row) => {
+      if (row.year === null || row.year === undefined) return;
+      counts.set(row.year, (counts.get(row.year) ?? 0) + 1);
+    });
+    const years = [...counts.entries()].sort((a, b) => a[0] - b[0]);
+    const max = Math.max(...years.map(([, n]) => n), 1);
+
+    host.replaceChildren();
+    const chart = el("div", "col-chart");
+    years.forEach(([year, count]) => {
+      const item = el("div", "col-item");
+      const wrap = el("div", "col-bar-wrap");
+      const bar = el("div", "col-bar tone-accent");
+      bar.style.height = `${pct(count, max)}%`;
+      bar.title = `${year}: ${count} source papers`;
+      wrap.appendChild(el("div", "col-value", count));
+      wrap.appendChild(bar);
+      item.appendChild(wrap);
+      item.appendChild(el("div", "col-label", year));
+      chart.appendChild(item);
+    });
+    host.appendChild(chart);
+  }
+
+  function renderTable(rows) {
+    const table = document.getElementById("category-table");
+    const buckets = tally(rows, (r) => r.category)
+      .sort((a, b) => b.total - a.total || String(a.key).localeCompare(String(b.key)));
+
+    const head = el("thead");
+    const headRow = el("tr");
+    ["Category", "Problems", "Solution", "Partial", "None", "Solved share"].forEach((label, i) => {
+      const th = el("th", i === 0 ? null : "num", label);
+      th.scope = "col";
+      headRow.appendChild(th);
+    });
+    head.appendChild(headRow);
+
+    const body = el("tbody");
+    buckets.forEach((bucket) => {
+      const tr = el("tr");
+      tr.appendChild(el("td", null, bucket.key));
+      tr.appendChild(el("td", "num", bucket.total));
+      tr.appendChild(el("td", "num", bucket.solved));
+      tr.appendChild(el("td", "num", bucket.partial));
+      tr.appendChild(el("td", "num", bucket.none));
+      tr.appendChild(el("td", "num", formatPct(bucket.solved, bucket.total)));
+      body.appendChild(tr);
+    });
+
+    const foot = el("tfoot");
+    const footRow = el("tr");
+    footRow.appendChild(el("th", null, "All categories"));
+    const totals = rows.length;
+    const solved = rows.filter((r) => r.outcome === "solved").length;
+    [totals, solved, rows.filter((r) => r.outcome === "partial").length,
+      rows.filter((r) => r.outcome === "none").length].forEach((value) => {
+      footRow.appendChild(el("td", "num", value));
+    });
+    footRow.appendChild(el("td", "num", formatPct(solved, totals)));
+    foot.appendChild(footRow);
+
+    table.replaceChildren(head, body, foot);
+  }
+
+  function toCsv(rows) {
+    const header = [
+      "problem_id", "number", "title", "area", "category", "journal",
+      "publication_year", "outcome", "solution_count", "partial_count",
+      "solution_classifications", "quantitative_bounds",
+      "counterexample_suitability", "alphaevolve_suitability", "has_literature_review",
+    ];
+    const escape = (value) => {
+      const text = value === null || value === undefined ? "" : String(value);
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    const lines = rows.map((row) => [
+      row.problem.problem_id,
+      row.problem.number,
+      row.problem.title,
+      row.area,
+      row.category,
+      row.journal,
+      row.year,
+      row.outcome,
+      row.solutions.length,
+      row.partials.length,
+      row.classifications.join("|"),
+      row.problem.quantitative_bounds,
+      row.problem.counterexample_suitability,
+      row.problem.alphaevolve_suitability,
+      row.problem.has_literature_review,
+    ].map(escape).join(","));
+    return [header.join(","), ...lines].join("\n");
+  }
+
+  function wireCsv(rows) {
+    const button = document.getElementById("download-csv");
+    button.addEventListener("click", () => {
+      const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "open-problems-in-or-results.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  async function fetchJson(path) {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`Failed to load ${path} (${response.status})`);
+    return response.json();
+  }
+
+  async function boot() {
+    try {
+      const [exportPayload, progressPayload] = await Promise.all([
+        fetchJson(EXPORT_INDEX),
+        fetchJson(PROGRESS_INDEX),
+      ]);
+      const rows = buildDataset(exportPayload, progressPayload);
+
+      renderKpis(rows, exportPayload);
+      renderOutcomeBar(rows);
+      renderSolutionTypes(rows);
+      renderGrouped("category-chart", rows, (r) => r.category, { noun: "categories" });
+      renderGrouped("journal-chart", rows, (r) => r.journal, { noun: "journals" });
+      renderGrouped("area-chart", rows, (r) => r.area, { limit: TOP_AREAS, noun: "areas" });
+      renderSuitability(rows);
+      renderYears(rows);
+      renderTable(rows);
+      wireCsv(rows);
+    } catch (error) {
+      const banner = document.getElementById("summary-error");
+      banner.textContent = `Could not build the summary: ${error.message}`;
+      banner.hidden = false;
+    }
+  }
+
+  boot();
+})();

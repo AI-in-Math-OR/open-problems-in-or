@@ -2,7 +2,11 @@
  * Site-wide settings for the static site. Edit here — do not duplicate in llm export JSON.
  */
 window.SITE_CONFIG = Object.freeze({
-  unverified_feedback_email: "pranav.nuti@chicagobooth.edu",
+  /** Shown on the unverified-entry banners; every address is listed as a mailto link. */
+  feedbackEmails: Object.freeze([
+    "rad.niazadeh@chicagobooth.edu",
+    "pranav.nuti@chicagobooth.edu",
+  ]),
   defaultJournal: "Mathematics of Operations Research",
   journals: [
     {
@@ -19,4 +23,25 @@ window.SITE_CONFIG = Object.freeze({
    * Production: Railway FastAPI service. Local API is http://127.0.0.1:8081.
    */
   uploadApiBaseUrl: "https://open-problems-in-or-production.up.railway.app",
+
+  /**
+   * Contact form delivery via Web3Forms (https://web3forms.com), which lets a
+   * static site email a form without a server.
+   *
+   * One access key delivers to exactly one verified inbox on the free plan, so
+   * list one key per recipient and the form posts to each. Create a key at
+   * web3forms.com (no account needed — it is emailed to you after verification).
+   * Keys are safe to commit: they are aliases for an address, not secrets.
+   *
+   * While this list is empty the Contact page falls back to plain mailto links,
+   * so the page is still usable before the keys are filled in.
+   */
+  contact: Object.freeze({
+    accessKeys: Object.freeze([
+      // "00000000-0000-0000-0000-000000000000", // rad.niazadeh@chicagobooth.edu
+      // "11111111-1111-1111-1111-111111111111", // pranav.nuti@chicagobooth.edu
+    ]),
+    subject: "Open Problems in OR — website message",
+    fromName: "Open Problems in OR",
+  }),
 });

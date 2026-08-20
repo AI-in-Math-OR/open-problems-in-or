@@ -26,6 +26,8 @@
       <nav class="site-nav" aria-label="Primary">
         <a href="index.html" class="site-nav-link">Problems</a>
         <a href="upload.html" class="site-nav-link">Upload</a>
+        <a href="summary.html" class="site-nav-link">Summary of Results</a>
+        <a href="contact.html" class="site-nav-link">Contact Us</a>
       </nav>
     </div>
   </header>
@@ -828,6 +830,20 @@
       return text.replace(/^problem\s*:\s*/i, "");
     }
 
+    function feedbackEmails() {
+      const cfg = window.SITE_CONFIG ?? {};
+      const list = Array.isArray(cfg.feedbackEmails) ? cfg.feedbackEmails : [cfg.unverified_feedback_email];
+      return list.map((entry) => String(entry ?? "").trim()).filter(Boolean);
+    }
+
+    function emailLinksHtml(emails) {
+      const links = emails.map((e) => `<a href="mailto:${escapeHtml(e)}">${escapeHtml(e)}</a>`);
+      if (links.length < 2) {
+        return links.join("");
+      }
+      return `${links.slice(0, -1).join(", ")} or ${links[links.length - 1]}`;
+    }
+
     function effectiveProblemArea(payload) {
       const primary = String(payload?.area ?? "").trim();
       if (primary) {
@@ -865,12 +881,12 @@
         if (unverified) {
           const notice = typeof v.notice === "string" ? v.notice : "";
           banner.querySelector(".unverified-notice").textContent = notice ? ` ${notice}` : "";
-          const email = String(window.SITE_CONFIG?.unverified_feedback_email ?? "").trim();
+          const emails = feedbackEmails();
           const wrap = banner.querySelector(".unverified-email-wrap");
           const emailEl = banner.querySelector(".unverified-email");
-          if (email && emailEl) {
+          if (emails.length && emailEl) {
             wrap.hidden = false;
-            emailEl.innerHTML = `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>`;
+            emailEl.innerHTML = emailLinksHtml(emails);
           } else if (wrap) {
             wrap.hidden = true;
           }

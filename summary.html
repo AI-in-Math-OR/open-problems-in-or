@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summary of Results · Open Problems in Operations Research</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-row">
+      <h1 class="site-title"><a href="index.html">Open Problems in Operations Research</a></h1>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" class="site-nav-link">Problems</a>
+        <a href="upload.html" class="site-nav-link">Upload</a>
+        <a href="summary.html" class="site-nav-link" aria-current="page">Summary of Results</a>
+        <a href="contact.html" class="site-nav-link">Contact Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h2 class="page-title">Summary of Results</h2>
+      <p class="page-lede">
+        Aggregate outcomes of our agentic pipeline across every open problem extracted
+        from the source journals. Figures are computed from the published dataset each
+        time this page loads, so they always match the problem listings.
+      </p>
+    </div>
+
+    <div class="unverified-banner" role="note">
+      <strong>Read these figures as provisional.</strong>
+      Write-ups are machine-generated and passed an automated fidelity audit; they are
+      not independently refereed. A problem counted as solved below has at least one
+      solution write-up, not a verified proof.
+    </div>
+
+    <p id="summary-error" class="summary-error" role="alert" hidden></p>
+
+    <section class="summary-section" aria-labelledby="at-a-glance-title">
+      <h3 id="at-a-glance-title" class="summary-section-title">At a glance</h3>
+      <dl class="kpi-grid" id="kpi-grid"></dl>
+    </section>
+
+    <section class="summary-section" aria-labelledby="outcomes-title">
+      <h3 id="outcomes-title" class="summary-section-title">Progress across all problems</h3>
+      <p class="summary-note">
+        Each problem falls into exactly one bucket. “Partial progress” means no full
+        write-up exists yet, but at least one partial result does.
+      </p>
+      <div id="outcome-bar"></div>
+    </section>
+
+    <section class="summary-section" aria-labelledby="solution-type-title">
+      <h3 id="solution-type-title" class="summary-section-title">What the solutions look like</h3>
+      <p class="summary-note">
+        Solution write-ups are classified by how the problem was resolved — by proving
+        the statement, or by refuting it with a counterexample.
+      </p>
+      <div id="solution-type-bar"></div>
+    </section>
+
+    <section class="summary-section" aria-labelledby="category-title">
+      <h3 id="category-title" class="summary-section-title">Progress by category</h3>
+      <p class="summary-note">
+        Research categories follow the site taxonomy, ordered by number of problems.
+      </p>
+      <div id="category-chart" class="bar-chart"></div>
+    </section>
+
+    <section class="summary-section" aria-labelledby="journal-title">
+      <h3 id="journal-title" class="summary-section-title">Progress by source journal</h3>
+      <div id="journal-chart" class="bar-chart"></div>
+    </section>
+
+    <hr class="summary-divider">
+
+    <section class="summary-section" aria-labelledby="detail-title">
+      <h3 id="detail-title" class="summary-section-title">Further breakdowns</h3>
+      <p class="summary-note">
+        Finer cuts of the same dataset, for readers who want the detail behind the
+        headline figures.
+      </p>
+
+      <details class="summary-details">
+        <summary>Progress by research area</summary>
+        <p class="summary-note">
+          Areas are finer-grained than categories. Showing those with the most problems.
+        </p>
+        <div id="area-chart" class="bar-chart"></div>
+      </details>
+
+      <details class="summary-details">
+        <summary>Suitability for automated experimentation</summary>
+        <p class="summary-note">
+          Ratings assigned during extraction, before any solving was attempted.
+          “Counterexample search” asks whether a counterexample could plausibly be
+          found by search; “AlphaEvolve” asks whether the problem suits evolutionary
+          program search.
+        </p>
+        <div id="suitability-charts" class="chart-pair"></div>
+      </details>
+
+      <details class="summary-details">
+        <summary>Source papers by publication year</summary>
+        <div id="year-chart" class="bar-chart"></div>
+      </details>
+
+      <details class="summary-details">
+        <summary>Full category table</summary>
+        <div class="table-scroll">
+          <table class="summary-table" id="category-table"></table>
+        </div>
+      </details>
+
+      <details class="summary-details">
+        <summary>Download the data</summary>
+        <p class="summary-note">
+          One row per problem, joining the problem metadata to its solution status.
+          Useful for reproducing or extending any figure on this page.
+        </p>
+        <button type="button" class="inline-action-btn" id="download-csv">Download CSV</button>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-maintainers">Maintainers: Eric Fithian, Rad Niazadeh, Pranav Nuti</div>
+      <div>Open Problems in Operations Research</div>
+      <div>We acknowledge funding from the Center for Applied Artificial Intelligence at the University of Chicago Booth School of Business.</div>
+    </div>
+  </footer>
+
+  <script src="js/site-config.js"></script>
+  <script src="js/taxonomy.js"></script>
+  <script src="js/summary.js"></script>
+</body>
+</html>
