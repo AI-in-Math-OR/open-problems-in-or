@@ -457,7 +457,9 @@ main {
 
 select.control-input {
   cursor: pointer;
-  max-width: 16rem;
+  /* Narrow enough that search + three selects share one row in the wide shell;
+     still comfortably fits the longest option label. */
+  max-width: 13rem;
 }
 
 .control-search {
@@ -1109,7 +1111,7 @@ a.problem-seq-btn:hover .problem-seq-btn-label {
   margin: 0;
   color: var(--color-text-secondary);
   font-size: 0.98rem;
-  max-width: 60ch;
+  max-width: 78ch;
 }
 
 /* —— Summary of Results —— */
@@ -1132,7 +1134,7 @@ a.problem-seq-btn:hover .problem-seq-btn-label {
   margin: 0 0 1.1rem;
   color: var(--color-text-muted);
   font-size: 0.88rem;
-  max-width: 62ch;
+  max-width: 78ch;
 }
 
 .summary-error {
@@ -1477,6 +1479,9 @@ a.problem-seq-btn:hover .problem-seq-btn-label {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem 3rem;
+  /* The form inputs are capped at 26rem, so let the two columns sit together
+     rather than drifting apart across the full width of the wider shell. */
+  max-width: 48rem;
 }
 
 .contact-form-col {
