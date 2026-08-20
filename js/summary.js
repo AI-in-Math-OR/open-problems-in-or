@@ -26,10 +26,10 @@
 
   // Ordered best first, so the chart reads top-down from strongest result.
   const SCORE_LEVELS = [
-    { key: "score3", score: 3, label: "3/3 · bound improved as stated", tone: "positive" },
-    { key: "score2", score: 2, label: "2/3 · bound partially improved", tone: "teal" },
-    { key: "score1", score: 1, label: "1/3 · progress, bound unmoved", tone: "caution" },
-    { key: "score0", score: 0, label: "0/3 · little beyond a restatement", tone: "neutral" },
+    { key: "score3", score: 3, label: "3/3 · full solution of the open problem (e.g., bound improved as stated)", tone: "positive" },
+    { key: "score2", score: 2, label: "2/3 · major progress, partially improved main result (e.g., bound slightly improved)", tone: "teal" },
+    { key: "score1", score: 1, label: "1/3 · progress, main result not improved (e.g., bound unmoved)", tone: "caution" },
+    { key: "score0", score: 0, label: "0/3 · little beyond a restatement of the problem", tone: "neutral" },
   ];
 
   function el(tag, className, text) {
@@ -57,13 +57,27 @@
     return String(problem?.subject_classification ?? "").trim();
   }
 
+  // Summary-only rollups. The problem listing keeps the finer labels for filtering;
+  // here a few neighbouring categories are combined so the chart is readable.
+  const CATEGORY_ROLLUP = {
+    "Online Matching": "Online Algorithms & Optimal Stopping",
+    "Prophet Inequalities": "Online Algorithms & Optimal Stopping",
+    "Variational Analysis & Monotone Operators":
+      "Variational Analysis, Stochastic Processes & Applied Probability",
+    "Stochastic Processes & Applied Probability":
+      "Variational Analysis, Stochastic Processes & Applied Probability",
+  };
+
   function categoryFor(problem) {
     const taxonomy = window.TAXONOMY ?? {};
     const known = new Set(taxonomy.categories ?? []);
     const explicit = String(problem?.category ?? "").trim();
-    if (explicit && known.has(explicit)) return explicit;
-    const map = taxonomy.areaToCategory ?? {};
-    return map[effectiveArea(problem).toLowerCase()] || taxonomy.fallback || "Other";
+    const raw = explicit && known.has(explicit)
+      ? explicit
+      : (taxonomy.areaToCategory ?? {})[effectiveArea(problem).toLowerCase()]
+        || taxonomy.fallback
+        || "Other";
+    return CATEGORY_ROLLUP[raw] || raw;
   }
 
   /** Joins each problem to its solution/partial write-ups and derives one outcome. */
@@ -270,7 +284,9 @@
       const total = scored.filter((r) => r.bestScore === level.score).length;
       return { label: level.label, total, [level.key]: total };
     });
-    barRows(document.getElementById("score-chart"), chartRows, SCORE_LEVELS);
+    const chart = el("div", "bar-rows bar-rows-wide-labels");
+    barRows(chart, chartRows, SCORE_LEVELS);
+    document.getElementById("score-chart").replaceChildren(chart);
 
     const byJournal = new Map();
     rows.forEach((row) => {
