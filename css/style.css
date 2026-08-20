@@ -34,7 +34,11 @@
   --font-display: 'Libre Baskerville', Georgia, serif;
   --font-body: 'Source Serif 4', 'Charter', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'Consolas', monospace;
-  --content-width: 820px;
+  /* Width of the page shell: header, main, footer. */
+  --content-width: 1120px;
+  /* Long-form prose (problem background, statement, quotes) is capped a little
+     narrower so proofs stay at a readable measure inside the wider shell. */
+  --reading-width: 92ch;
 }
 
 * {
@@ -769,6 +773,14 @@ select.control-input {
 }
 
 /* Sections */
+.problem-section > p,
+.problem-section > ul,
+.problem-section > ol,
+.problem-section .math-content,
+.problem-section .section-note {
+  max-width: var(--reading-width);
+}
+
 .problem-section {
   margin: 2.5rem 0;
 }
