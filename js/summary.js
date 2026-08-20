@@ -7,7 +7,6 @@
 
   const EXPORT_INDEX = "data/llm_math_export/index.json";
   const PROGRESS_INDEX = "data/llm_math_export/solution_progress/index.json";
-  const TOP_AREAS = 16;
 
   // Tones mirror the pill colours used on the problem pages, so a reader who has
   // seen a "solution" pill recognises the same green here.
@@ -20,12 +19,6 @@
   const SOLUTION_TYPES = [
     { key: "direct_proof", label: "Direct proof", tone: "teal" },
     { key: "counterexample", label: "Counterexample", tone: "clay" },
-  ];
-
-  const SUITABILITY_LEVELS = [
-    { key: "high", label: "High", tone: "positive" },
-    { key: "medium", label: "Medium", tone: "caution" },
-    { key: "low", label: "Low", tone: "neutral" },
   ];
 
   function el(tag, className, text) {
@@ -229,65 +222,16 @@
     host.appendChild(caption);
   }
 
-  function renderGrouped(hostId, rows, keyFn, options) {
+  function renderGrouped(hostId, rows, keyFn) {
     const host = document.getElementById(hostId);
     const buckets = tally(rows, keyFn)
       .sort((a, b) => b.total - a.total || String(a.key).localeCompare(String(b.key)));
-    const shown = options?.limit ? buckets.slice(0, options.limit) : buckets;
 
     host.replaceChildren();
     host.appendChild(legend(OUTCOMES));
     const chart = el("div", "bar-rows");
-    barRows(chart, shown.map((b) => ({ ...b, label: b.key })), OUTCOMES);
+    barRows(chart, buckets.map((b) => ({ ...b, label: b.key })), OUTCOMES);
     host.appendChild(chart);
-
-    if (options?.limit && buckets.length > options.limit) {
-      host.appendChild(el("p", "chart-footnote",
-        `Showing the ${options.limit} largest of ${buckets.length} ${options.noun}.`));
-    }
-  }
-
-  function renderSuitability(rows) {
-    const host = document.getElementById("suitability-charts");
-    host.replaceChildren();
-
-    const fields = [
-      { field: "counterexample_suitability", title: "Counterexample search" },
-      { field: "alphaevolve_suitability", title: "AlphaEvolve-style search" },
-    ];
-
-    fields.forEach(({ field, title }) => {
-      const panel = el("div", "chart-panel");
-      panel.appendChild(el("h4", "chart-panel-title", title));
-      const chart = el("div", "bar-rows");
-      const total = rows.length;
-      const counts = new Map(SUITABILITY_LEVELS.map((l) => [l.key, 0]));
-      rows.forEach((row) => {
-        const value = String(row.problem?.[field] ?? "").trim().toLowerCase();
-        if (counts.has(value)) counts.set(value, counts.get(value) + 1);
-      });
-      const maxCount = Math.max(...counts.values(), 1);
-      SUITABILITY_LEVELS.forEach((level) => {
-        const value = counts.get(level.key) ?? 0;
-        const line = el("div", "bar-row");
-        line.appendChild(el("div", "bar-label bar-label-short", level.label));
-        const shell = el("div", "bar-shell");
-        const inner = el("div", "bar-inner");
-        inner.style.width = `${pct(value, maxCount)}%`;
-        const track = el("div", "bar-track");
-        const seg = el("div", `bar-seg tone-${level.tone}`);
-        seg.style.width = "100%";
-        seg.title = `${level.label}: ${value} of ${total} (${formatPct(value, total)})`;
-        track.appendChild(seg);
-        inner.appendChild(track);
-        shell.appendChild(inner);
-        line.appendChild(shell);
-        line.appendChild(el("div", "bar-total", value));
-        chart.appendChild(line);
-      });
-      panel.appendChild(chart);
-      host.appendChild(panel);
-    });
   }
 
   function renderYears(rows) {
@@ -421,10 +365,8 @@
       renderKpis(rows, exportPayload);
       renderOutcomeBar(rows);
       renderSolutionTypes(rows);
-      renderGrouped("category-chart", rows, (r) => r.category, { noun: "categories" });
-      renderGrouped("journal-chart", rows, (r) => r.journal, { noun: "journals" });
-      renderGrouped("area-chart", rows, (r) => r.area, { limit: TOP_AREAS, noun: "areas" });
-      renderSuitability(rows);
+      renderGrouped("category-chart", rows, (r) => r.category);
+      renderGrouped("journal-chart", rows, (r) => r.journal);
       renderYears(rows);
       renderTable(rows);
       wireCsv(rows);
