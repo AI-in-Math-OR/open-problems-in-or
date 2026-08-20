@@ -1331,6 +1331,15 @@ a.problem-seq-btn:hover .problem-seq-btn-label {
   color: var(--color-text-muted);
 }
 
+.chart-footnote {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1.6;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+}
+
 /* Vertical histogram (publication years) */
 .col-chart {
   display: flex;

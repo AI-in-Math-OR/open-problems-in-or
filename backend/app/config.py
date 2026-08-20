@@ -27,7 +27,7 @@ CORS_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "CORS_ORIGINS",
-        "http://127.0.0.1:8000,http://localhost:8000,https://pranav-nuti.github.io",
+        "http://127.0.0.1:8000,http://localhost:8000,https://ai-in-math-or.github.io",
     ).split(",")
     if origin.strip()
 ]

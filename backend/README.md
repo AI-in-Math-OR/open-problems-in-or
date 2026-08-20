@@ -53,9 +53,15 @@ In Railway → Variables (do **not** commit these):
 | `UPLOAD_SEED_USERNAME` | `pete` |
 | `UPLOAD_SEED_PASSWORD` | *(shared password)* |
 | `SESSION_SECRET` | *(long random string)* |
-| `CORS_ORIGINS` | `https://pranav-nuti.github.io,http://127.0.0.1:8000,http://localhost:8000` |
+| `CORS_ORIGINS` | `https://ai-in-math-or.github.io,http://127.0.0.1:8000,http://localhost:8000` |
 
 `PORT` is set automatically by Railway.
+
+`CORS_ORIGINS` must name the exact scheme and host the site is served from, with
+no path — `https://ai-in-math-or.github.io` covers the whole project page. The
+value is read once at import, so changing it in Railway needs a redeploy to take
+effect. Because the API runs with `allow_credentials=True`, `*` is not accepted
+as a shortcut; every origin has to be listed.
 
 ### 4. Public URL
 

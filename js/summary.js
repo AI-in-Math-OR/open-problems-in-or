@@ -7,6 +7,9 @@
 
   const EXPORT_INDEX = "data/llm_math_export/index.json";
   const PROGRESS_INDEX = "data/llm_math_export/solution_progress/index.json";
+  // Written by `llm-math website export-progress-scores`. Only some batches have
+  // been rolled up, so the section keyed to it hides itself when it is absent.
+  const SCORE_INDEX = "data/llm_math_export/solution_progress/progress_scores.json";
 
   // Tones mirror the pill colours used on the problem pages, so a reader who has
   // seen a "solution" pill recognises the same green here.
@@ -19,6 +22,14 @@
   const SOLUTION_TYPES = [
     { key: "direct_proof", label: "Direct proof", tone: "teal" },
     { key: "counterexample", label: "Counterexample", tone: "clay" },
+  ];
+
+  // Ordered best first, so the chart reads top-down from strongest result.
+  const SCORE_LEVELS = [
+    { key: "score3", score: 3, label: "3/3 · bound improved as stated", tone: "positive" },
+    { key: "score2", score: 2, label: "2/3 · bound partially improved", tone: "teal" },
+    { key: "score1", score: 1, label: "1/3 · progress, bound unmoved", tone: "caution" },
+    { key: "score0", score: 0, label: "0/3 · little beyond a restatement", tone: "neutral" },
   ];
 
   function el(tag, className, text) {
@@ -56,8 +67,9 @@
   }
 
   /** Joins each problem to its solution/partial write-ups and derives one outcome. */
-  function buildDataset(exportPayload, progressPayload) {
+  function buildDataset(exportPayload, progressPayload, scorePayload) {
     const progress = progressPayload?.problems ?? {};
+    const scores = scorePayload?.problems ?? {};
     return (exportPayload.problems ?? []).map((problem) => {
       const entry = progress[problem.problem_id] ?? {};
       const solutions = Array.isArray(entry.solutions) ? entry.solutions : [];
@@ -65,6 +77,10 @@
       const classifications = solutions
         .map((s) => String(s?.classification ?? "").trim())
         .filter(Boolean);
+      const attempts = Array.isArray(scores[problem.problem_id]?.attempts)
+        ? scores[problem.problem_id].attempts
+        : [];
+      const scored = attempts.map((a) => Number(a?.score)).filter(Number.isFinite);
       return {
         problem,
         area: effectiveArea(problem) || "unspecified",
@@ -74,6 +90,8 @@
         solutions,
         partials,
         classifications,
+        attempts,
+        bestScore: scored.length ? Math.max(...scored) : null,
         outcome: solutions.length ? "solved" : partials.length ? "partial" : "none",
       };
     });
@@ -222,6 +240,41 @@
     host.appendChild(caption);
   }
 
+  /**
+   * Score distribution, hidden entirely until at least one batch has been rolled
+   * up and exported. The coverage line names every journal so it stays honest
+   * about which parts of the catalogue have been scored and which have not.
+   */
+  function renderScores(rows) {
+    const section = document.getElementById("score-section");
+    const scored = rows.filter((r) => r.bestScore !== null);
+    if (!scored.length) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+
+    const chartRows = SCORE_LEVELS.map((level) => {
+      const total = scored.filter((r) => r.bestScore === level.score).length;
+      return { label: level.label, total, [level.key]: total };
+    });
+    barRows(document.getElementById("score-chart"), chartRows, SCORE_LEVELS);
+
+    const byJournal = new Map();
+    rows.forEach((row) => {
+      const bucket = byJournal.get(row.journal) ?? { total: 0, scored: 0 };
+      bucket.total += 1;
+      if (row.bestScore !== null) bucket.scored += 1;
+      byJournal.set(row.journal, bucket);
+    });
+    const coverage = [...byJournal.entries()]
+      .sort((a, b) => b[1].total - a[1].total || a[0].localeCompare(b[0]))
+      .map(([journal, b]) => `${journal}: ${b.scored} of ${b.total} scored`)
+      .join(" · ");
+    document.getElementById("score-coverage").textContent =
+      `${scored.length} of ${rows.length} problems have a scored attempt. ${coverage}`;
+  }
+
   function renderGrouped(hostId, rows, keyFn) {
     const host = document.getElementById(hostId);
     const buckets = tally(rows, keyFn)
@@ -306,7 +359,8 @@
     const header = [
       "problem_id", "number", "title", "area", "category", "journal",
       "publication_year", "outcome", "solution_count", "partial_count",
-      "solution_classifications", "quantitative_bounds",
+      "solution_classifications", "best_progress_score", "scored_attempts",
+      "quantitative_bounds",
       "counterexample_suitability", "alphaevolve_suitability", "has_literature_review",
     ];
     const escape = (value) => {
@@ -325,6 +379,8 @@
       row.solutions.length,
       row.partials.length,
       row.classifications.join("|"),
+      row.bestScore === null ? "" : `${row.bestScore}/3`,
+      row.attempts.length,
       row.problem.quantitative_bounds,
       row.problem.counterexample_suitability,
       row.problem.alphaevolve_suitability,
@@ -354,17 +410,29 @@
     return response.json();
   }
 
+  /** For data the page can do without: a missing file costs one section, not the page. */
+  async function fetchOptionalJson(path) {
+    try {
+      const response = await fetch(path);
+      return response.ok ? await response.json() : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   async function boot() {
     try {
-      const [exportPayload, progressPayload] = await Promise.all([
+      const [exportPayload, progressPayload, scorePayload] = await Promise.all([
         fetchJson(EXPORT_INDEX),
         fetchJson(PROGRESS_INDEX),
+        fetchOptionalJson(SCORE_INDEX),
       ]);
-      const rows = buildDataset(exportPayload, progressPayload);
+      const rows = buildDataset(exportPayload, progressPayload, scorePayload);
 
       renderKpis(rows, exportPayload);
       renderOutcomeBar(rows);
       renderSolutionTypes(rows);
+      renderScores(rows);
       renderGrouped("category-chart", rows, (r) => r.category);
       renderGrouped("journal-chart", rows, (r) => r.journal);
       renderYears(rows);
