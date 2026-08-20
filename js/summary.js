@@ -57,27 +57,11 @@
     return String(problem?.subject_classification ?? "").trim();
   }
 
-  // Summary-only rollups. The problem listing keeps the finer labels for filtering;
-  // here a few neighbouring categories are combined so the chart is readable.
-  const CATEGORY_ROLLUP = {
-    "Online Matching": "Online Algorithms & Optimal Stopping",
-    "Prophet Inequalities": "Online Algorithms & Optimal Stopping",
-    "Variational Analysis & Monotone Operators":
-      "Variational Analysis, Stochastic Processes & Applied Probability",
-    "Stochastic Processes & Applied Probability":
-      "Variational Analysis, Stochastic Processes & Applied Probability",
-  };
-
   function categoryFor(problem) {
-    const taxonomy = window.TAXONOMY ?? {};
-    const known = new Set(taxonomy.categories ?? []);
-    const explicit = String(problem?.category ?? "").trim();
-    const raw = explicit && known.has(explicit)
-      ? explicit
-      : (taxonomy.areaToCategory ?? {})[effectiveArea(problem).toLowerCase()]
-        || taxonomy.fallback
-        || "Other";
-    return CATEGORY_ROLLUP[raw] || raw;
+    if (typeof window.resolveCategory !== "function") {
+      throw new Error("Missing taxonomy: js/taxonomy.js did not load window.resolveCategory.");
+    }
+    return window.resolveCategory(problem?.category, effectiveArea(problem));
   }
 
   /** Joins each problem to its solution/partial write-ups and derives one outcome. */

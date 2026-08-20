@@ -167,16 +167,9 @@
     if (!window.TAXONOMY || !Array.isArray(window.TAXONOMY.categories)) {
       throw new Error("Missing taxonomy: js/taxonomy.js did not load a valid window.TAXONOMY.");
     }
-    const CATEGORY_SET = new Set(window.TAXONOMY.categories);
-    const AREA_TO_CATEGORY = window.TAXONOMY.areaToCategory || {};
-    const FALLBACK_CATEGORY = window.TAXONOMY.fallback || "Other";
 
     function categoryForProblem(payload, areaRaw) {
-      const explicit = String(payload?.category ?? "").trim();
-      if (explicit && CATEGORY_SET.has(explicit)) {
-        return explicit;
-      }
-      return AREA_TO_CATEGORY[String(areaRaw ?? "").trim().toLowerCase()] || FALLBACK_CATEGORY;
+      return window.resolveCategory(payload?.category, areaRaw);
     }
 
     function escapeHtml(text) {

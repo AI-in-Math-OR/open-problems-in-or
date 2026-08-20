@@ -274,12 +274,7 @@
     }
 
     function categoryForProblem(payload) {
-      const explicit = String(payload?.category ?? "").trim();
-      if (explicit && CATEGORY_SET.has(explicit)) {
-        return explicit;
-      }
-      const area = effectiveProblemArea(payload).toLowerCase();
-      return AREA_TO_CATEGORY[area] || FALLBACK_CATEGORY;
+      return window.resolveCategory(payload?.category, effectiveProblemArea(payload));
     }
 
     function formatAreaBadge(p) {
