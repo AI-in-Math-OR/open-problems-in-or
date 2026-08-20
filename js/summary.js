@@ -223,9 +223,10 @@
     rows.forEach((row) => row.classifications.forEach((c) => {
       if (c in counts) counts[c] += 1;
     }));
-    // Proof style is maintained in a sidecar file, so a solution can be published
-    // before it is classified. Carrying the shortfall as its own segment keeps this
-    // chart's total equal to the write-up count above it instead of quietly shrinking.
+    // Proof style is authored separately and baked into the progress manifest, so a
+    // solution can reach the site before it is classified. Carrying the shortfall as
+    // its own segment keeps this chart's total equal to the write-up count above it
+    // instead of quietly shrinking.
     const solutionDocs = rows.reduce((sum, r) => sum + r.solutions.length, 0);
     counts.unclassified = Math.max(solutionDocs - counts.direct_proof - counts.counterexample, 0);
     const segments = counts.unclassified
