@@ -158,9 +158,12 @@
     });
   }
 
-  function renderKpis(rows, exportPayload) {
+  function renderKpis(rows) {
     const grid = document.getElementById("kpi-grid");
     const total = rows.length;
+    // Counted from the rows rather than read from the export's own counts block,
+    // which is a snapshot written at export time and can outlive its numbers.
+    const withReview = rows.filter((r) => r.problem?.has_literature_review === true).length;
     const solved = rows.filter((r) => r.outcome === "solved").length;
     const partial = rows.filter((r) => r.outcome === "partial").length;
     const none = rows.filter((r) => r.outcome === "none").length;
@@ -168,7 +171,7 @@
     const partialDocs = rows.reduce((sum, r) => sum + r.partials.length, 0);
 
     const items = [
-      { value: total, label: "Open problems catalogued", note: `${exportPayload?.counts?.with_literature_review ?? 0} with a literature review` },
+      { value: total, label: "Open problems catalogued", note: `${withReview} with a literature review` },
       { value: solved, label: "Problems with a solution", note: `${formatPct(solved, total)} of all problems`, tone: "positive" },
       { value: partial, label: "Problems with partial progress", note: `${formatPct(partial, total)} of all problems`, tone: "caution" },
       { value: none, label: "Problems not yet attempted", note: `${formatPct(none, total)} of all problems` },
@@ -216,24 +219,32 @@
 
   function renderSolutionTypes(rows) {
     const host = document.getElementById("solution-type-bar");
-    const counts = { direct_proof: 0, counterexample: 0 };
+    const counts = { direct_proof: 0, counterexample: 0, unclassified: 0 };
     rows.forEach((row) => row.classifications.forEach((c) => {
       if (c in counts) counts[c] += 1;
     }));
-    const total = counts.direct_proof + counts.counterexample;
+    // Proof style is maintained in a sidecar file, so a solution can be published
+    // before it is classified. Carrying the shortfall as its own segment keeps this
+    // chart's total equal to the write-up count above it instead of quietly shrinking.
+    const solutionDocs = rows.reduce((sum, r) => sum + r.solutions.length, 0);
+    counts.unclassified = Math.max(solutionDocs - counts.direct_proof - counts.counterexample, 0);
+    const segments = counts.unclassified
+      ? [...SOLUTION_TYPES, { key: "unclassified", label: "Not yet classified", tone: "neutral" }]
+      : SOLUTION_TYPES;
+    const total = segments.reduce((sum, s) => sum + counts[s.key], 0);
 
     host.replaceChildren();
-    host.appendChild(legend(SOLUTION_TYPES));
+    host.appendChild(legend(segments));
 
     const wide = el("div", "bar-wide");
     wide.appendChild(stackedBar(
-      SOLUTION_TYPES.map((t) => ({ ...t, value: counts[t.key] })),
+      segments.map((t) => ({ ...t, value: counts[t.key] })),
       total
     ));
     host.appendChild(wide);
 
     const caption = el("div", "chart-caption");
-    SOLUTION_TYPES.forEach((t) => {
+    segments.forEach((t) => {
       caption.appendChild(el("span", "chart-caption-item",
         `${t.label}: ${counts[t.key]} (${formatPct(counts[t.key], total)})`));
     });
@@ -429,7 +440,7 @@
       ]);
       const rows = buildDataset(exportPayload, progressPayload, scorePayload);
 
-      renderKpis(rows, exportPayload);
+      renderKpis(rows);
       renderOutcomeBar(rows);
       renderSolutionTypes(rows);
       renderScores(rows);
