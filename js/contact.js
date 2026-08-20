@@ -93,21 +93,23 @@
     say("Opening your email app with this message ready to send.");
   }
 
+  /**
+   * Sent as FormData rather than JSON: a JSON body triggers a CORS preflight,
+   * and the endpoint does not answer preflights reliably. FormData is a
+   * CORS-safelisted content type, so the POST goes straight out.
+   */
   async function postTo(key, fields) {
-    const response = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        access_key: key,
-        name: fields.name,
-        email: fields.email,
-        subject: subjectFor(fields),
-        from_name: config().fromName ?? "Open Problems in OR",
-        message: fields.message,
-      }),
-    });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
+    const body = new FormData();
+    body.append("access_key", key);
+    body.append("name", fields.name);
+    body.append("email", fields.email);
+    body.append("subject", subjectFor(fields));
+    body.append("from_name", config().fromName ?? "Open Problems in OR");
+    body.append("message", fields.message);
+
+    const response = await fetch(ENDPOINT, { method: "POST", body });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.success === false) {
       throw new Error(payload.message || `Request failed (${response.status})`);
     }
     return true;

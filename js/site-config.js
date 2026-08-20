@@ -38,8 +38,8 @@ window.SITE_CONFIG = Object.freeze({
    */
   contact: Object.freeze({
     accessKeys: Object.freeze([
-      // "00000000-0000-0000-0000-000000000000", // rad.niazadeh@chicagobooth.edu
-      // "11111111-1111-1111-1111-111111111111", // pranav.nuti@chicagobooth.edu
+      "d455d09e-6f92-4d38-94e3-3163e7f666fc", // Rad
+      // Add Pranav's key here so submissions reach him too.
     ]),
     subject: "Open Problems in OR — website message",
     fromName: "Open Problems in OR",
