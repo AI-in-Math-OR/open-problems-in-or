@@ -108,12 +108,22 @@
     return [...buckets.values()];
   }
 
-  function legend(items) {
+  /**
+   * Legend for a chart. When an item carries a numeric `value` the count and its
+   * share are printed inline, so a stacked bar needs no separate caption beneath
+   * it (spec §5.2f). Items without a value — the shared key above a multi-row
+   * chart — render as label-only entries.
+   */
+  function legend(items, total) {
     const wrap = el("div", "chart-legend");
     items.forEach((item) => {
       const entry = el("span", "chart-legend-item");
       entry.appendChild(el("span", `chart-swatch tone-${item.tone}`));
       entry.appendChild(el("span", null, item.label));
+      if (Number.isFinite(item.value)) {
+        entry.appendChild(el("span", "chart-legend-value",
+          `${item.value} (${formatPct(item.value, total)})`));
+      }
       wrap.appendChild(entry);
     });
     return wrap;
@@ -197,22 +207,14 @@
       partial: rows.filter((r) => r.outcome === "partial").length,
       none: rows.filter((r) => r.outcome === "none").length,
     };
+    const parts = OUTCOMES.map((o) => ({ ...o, value: counts[o.key] }));
+
     host.replaceChildren();
-    host.appendChild(legend(OUTCOMES));
+    host.appendChild(legend(parts, total));
 
     const wide = el("div", "bar-wide");
-    wide.appendChild(stackedBar(
-      OUTCOMES.map((o) => ({ ...o, value: counts[o.key] })),
-      total
-    ));
+    wide.appendChild(stackedBar(parts, total));
     host.appendChild(wide);
-
-    const caption = el("div", "chart-caption");
-    OUTCOMES.forEach((o) => {
-      caption.appendChild(el("span", "chart-caption-item",
-        `${o.label}: ${counts[o.key]} (${formatPct(counts[o.key], total)})`));
-    });
-    host.appendChild(caption);
   }
 
   function renderSolutionTypes(rows) {
@@ -232,22 +234,14 @@
       : SOLUTION_TYPES;
     const total = segments.reduce((sum, s) => sum + counts[s.key], 0);
 
+    const parts = segments.map((t) => ({ ...t, value: counts[t.key] }));
+
     host.replaceChildren();
-    host.appendChild(legend(segments));
+    host.appendChild(legend(parts, total));
 
     const wide = el("div", "bar-wide");
-    wide.appendChild(stackedBar(
-      segments.map((t) => ({ ...t, value: counts[t.key] })),
-      total
-    ));
+    wide.appendChild(stackedBar(parts, total));
     host.appendChild(wide);
-
-    const caption = el("div", "chart-caption");
-    segments.forEach((t) => {
-      caption.appendChild(el("span", "chart-caption-item",
-        `${t.label}: ${counts[t.key]} (${formatPct(counts[t.key], total)})`));
-    });
-    host.appendChild(caption);
   }
 
   /**
@@ -454,6 +448,9 @@
       const banner = document.getElementById("summary-error");
       banner.textContent = `Could not build the summary: ${error.message}`;
       banner.hidden = false;
+      // Stop the loading skeletons pulsing under the error message — no data is
+      // still on its way.
+      document.querySelector("main")?.classList.add("is-failed");
     }
   }
 

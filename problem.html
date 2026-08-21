@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Problem</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <script>
     window.MathJax = {
@@ -19,20 +23,25 @@
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
-<body>
-  <header class="site-header">
-    <div class="site-header-row">
-      <h1 class="site-title"><a href="index.html">Open Problems in Operations Research</a></h1>
-      <nav class="site-nav" aria-label="Primary">
-        <a href="index.html" class="site-nav-link">Problems</a>
-        <a href="upload.html" class="site-nav-link">Upload</a>
-        <a href="summary.html" class="site-nav-link">Summary of Results</a>
-        <a href="contact.html" class="site-nav-link">Contact Us</a>
-      </nav>
-    </div>
-  </header>
+<body class="page-problem">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <main>
+  <div class="site-header-shell">
+    <header class="site-header">
+      <div class="site-header-row">
+        <p class="site-title"><a href="index.html">Open Problems in Operations Research</a></p>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="index.html" class="site-nav-link">Problems</a>
+          <a href="upload.html" class="site-nav-link">Upload</a>
+          <a href="summary.html" class="site-nav-link">Summary of Results</a>
+          <a href="contact.html" class="site-nav-link">Contact Us</a>
+          <a href="team.html" class="site-nav-link">Our Team</a>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <main id="main" class="is-loading" aria-busy="true">
     <a href="index.html" class="back-link" id="back-link">← Back to all problems</a>
 
     <div id="unverified-banner" class="unverified-banner" role="alert" hidden>
@@ -79,6 +88,14 @@
       </div>
     </div>
 
+    <p id="page-error" class="page-error" role="alert" hidden></p>
+
+    <div id="problem-skeleton" aria-hidden="true">
+      <div class="skeleton" style="height:1.6rem;width:64%;margin-bottom:1rem;"></div>
+      <div class="skeleton" style="height:1rem;width:92%;margin-bottom:0.55rem;"></div>
+      <div class="skeleton" style="height:1rem;width:78%;"></div>
+    </div>
+
     <div class="problem-source-block solved-notice-block" id="solved-notice-block" hidden>
       <div class="solved-notice-label" id="solved-notice-label"></div>
       <div class="problem-source-paper" id="solution-paper"></div>
@@ -99,7 +116,10 @@
         <button id="toggle-raw-latex-btn" class="inline-action-btn" type="button">View raw LaTeX source</button>
       </div>
       <pre id="raw-problem-latex" class="raw-source-block" hidden></pre>
-      <div id="problem-definition" class="problem-definition-box math-content"></div>
+      <div class="problem-definition-box">
+        <span class="box-eyebrow">Problem statement</span>
+        <div id="problem-definition" class="math-content"></div>
+      </div>
     </section>
 
     <section class="problem-section">
@@ -140,7 +160,7 @@
     <section class="problem-section">
       <h2>Literature review</h2>
       <details class="lit-review-details">
-        <summary>Show literature review</summary>
+        <summary>Literature review</summary>
         <div id="literature-review"></div>
       </details>
     </section>
@@ -154,7 +174,7 @@
 
   <footer class="site-footer">
     <div class="footer-content">
-      <div class="footer-maintainers">Maintainers: Eric Fithian, Rad Niazadeh, Pranav Nuti</div>
+      <div class="footer-maintainers">Maintainers: Rad Niazadeh, Pranav Nuti, Eric Fithian, Pete Westbrook, Jiechen Zhang</div>
       <div>Open Problems in Operations Research</div>
       <div>We acknowledge funding from the Center for Applied Artificial Intelligence at the University of Chicago Booth School of Business.</div>
     </div>
@@ -367,7 +387,7 @@
       nav.hidden = false;
       const total = scopedRows.length;
       const pos = idx + 1;
-      counter.textContent = `${pos} / ${total}`;
+      counter.textContent = `Problem ${pos} of ${total} in this journal`;
 
       if (idx > 0) {
         const prevRow = scopedRows[idx - 1];
@@ -673,7 +693,7 @@
           el.classList.add(normalized);
           return true;
         }
-        el.textContent = "—";
+        el.textContent = "unrated";
         el.classList.add("unknown");
         return false;
       }
@@ -1020,7 +1040,17 @@
         }
       } catch (err) {
         document.getElementById("problem-title").textContent = "Unable to load problem";
-        document.getElementById("problem-context").textContent = err.message;
+        document.getElementById("problem-number").textContent = "";
+        document.getElementById("problem-id").textContent = "";
+        const errorEl = document.getElementById("page-error");
+        errorEl.textContent = err.message;
+        errorEl.hidden = false;
+        document.getElementById("main").classList.add("has-error");
+      } finally {
+        const mainEl = document.getElementById("main");
+        mainEl.classList.remove("is-loading");
+        mainEl.removeAttribute("aria-busy");
+        document.getElementById("problem-skeleton").hidden = true;
       }
     }
 

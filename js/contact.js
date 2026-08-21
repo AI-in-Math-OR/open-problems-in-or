@@ -40,8 +40,7 @@
       host.textContent = "Maintainer addresses are listed on the problem pages.";
       return;
     }
-    emails.forEach((email, index) => {
-      if (index > 0) host.appendChild(document.createTextNode(" · "));
+    emails.forEach((email) => {
       const link = document.createElement("a");
       link.href = `mailto:${email}`;
       link.textContent = email;
@@ -141,11 +140,13 @@
     }
 
     submitButton.disabled = true;
+    submitButton.setAttribute("aria-busy", "true");
     say("Sending…");
 
     const outcomes = await Promise.allSettled(keys.map((key) => postTo(key, fields)));
     const delivered = outcomes.filter((o) => o.status === "fulfilled").length;
     submitButton.disabled = false;
+    submitButton.removeAttribute("aria-busy");
 
     if (delivered === keys.length) {
       say("Thank you — your message has been sent. We will get back to you at the address you gave.", "success");

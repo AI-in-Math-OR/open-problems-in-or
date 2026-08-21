@@ -4,24 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Us · Open Problems in Operations Research</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <header class="site-header">
-    <div class="site-header-row">
-      <h1 class="site-title"><a href="index.html">Open Problems in Operations Research</a></h1>
-      <nav class="site-nav" aria-label="Primary">
-        <a href="index.html" class="site-nav-link">Problems</a>
-        <a href="upload.html" class="site-nav-link">Upload</a>
-        <a href="summary.html" class="site-nav-link">Summary of Results</a>
-        <a href="contact.html" class="site-nav-link" aria-current="page">Contact Us</a>
-      </nav>
-    </div>
-  </header>
+<body class="page-contact">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <main>
+  <div class="site-header-shell">
+    <header class="site-header">
+      <div class="site-header-row">
+        <p class="site-title"><a href="index.html">Open Problems in Operations Research</a></p>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="index.html" class="site-nav-link">Problems</a>
+          <a href="upload.html" class="site-nav-link">Upload</a>
+          <a href="summary.html" class="site-nav-link">Summary of Results</a>
+          <a href="contact.html" class="site-nav-link" aria-current="page">Contact Us</a>
+          <a href="team.html" class="site-nav-link">Our Team</a>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <main id="main">
     <div class="page-header">
-      <h2 class="page-title">Contact Us</h2>
+      <h1 class="page-title">Contact Us</h1>
       <p class="page-lede">
         General comments and feedback on the project are welcome. Messages sent from
         this page reach the maintainers directly.
@@ -44,7 +53,7 @@
             </p>
           </div>
           <div class="upload-field">
-            <label for="contact-subject">Subject</label>
+            <label for="contact-subject">Subject <span class="label-optional">optional</span></label>
             <input id="contact-subject" name="user_subject" type="text">
           </div>
           <div class="upload-field contact-field">
@@ -82,7 +91,7 @@
 
   <footer class="site-footer">
     <div class="footer-content">
-      <div class="footer-maintainers">Maintainers: Eric Fithian, Rad Niazadeh, Pranav Nuti</div>
+      <div class="footer-maintainers">Maintainers: Rad Niazadeh, Pranav Nuti, Eric Fithian, Pete Westbrook, Jiechen Zhang</div>
       <div>Open Problems in Operations Research</div>
       <div>We acknowledge funding from the Center for Applied Artificial Intelligence at the University of Chicago Booth School of Business.</div>
     </div>

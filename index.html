@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Open Problems in Operations Research</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <script>
     window.MathJax = {
@@ -19,31 +23,41 @@
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
-<body>
-  <header class="site-header">
-    <div class="site-header-row">
-      <h1 class="site-title"><a href="index.html">Open Problems in Operations Research</a></h1>
-      <nav class="site-nav" aria-label="Primary">
-        <a href="index.html" class="site-nav-link" aria-current="page">Problems</a>
-        <a href="upload.html" class="site-nav-link">Upload</a>
-        <a href="summary.html" class="site-nav-link">Summary of Results</a>
-        <a href="contact.html" class="site-nav-link">Contact Us</a>
-      </nav>
-    </div>
-  </header>
+<body class="page-index">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <main>
+  <div class="site-header-shell">
+    <header class="site-header">
+      <div class="site-header-row">
+        <p class="site-title"><a href="index.html">Open Problems in Operations Research</a></p>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="index.html" class="site-nav-link" aria-current="page">Problems</a>
+          <a href="upload.html" class="site-nav-link">Upload</a>
+          <a href="summary.html" class="site-nav-link">Summary of Results</a>
+          <a href="contact.html" class="site-nav-link">Contact Us</a>
+          <a href="team.html" class="site-nav-link">Our Team</a>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <main id="main">
     <div class="wip-warning" role="alert">Work in Progress</div>
+
+    <header class="list-hero">
+      <h1 class="list-hero-title">Open Problems</h1>
+      <p class="list-hero-sub">Open questions extracted from the operations-research literature, with machine-generated solution attempts.</p>
+    </header>
+
     <nav class="journal-tabs" id="journal-tabs" aria-label="Source journal"></nav>
-    <div id="unverified-banner" class="unverified-banner" role="alert" hidden>
-      <strong>Unverified entries.</strong>
-      <span class="unverified-notice"></span>
-      <span class="unverified-email-wrap"> Contact
-        <span class="unverified-email"></span> if any entry is resolved or misstated.</span>
-    </div>
-    <div class="unverified-banner prompt-banner">
-      To see more details about our agentic pipeline and prompts, see the draft paper here:
-      <a href="https://faculty.chicagobooth.edu/-/media/faculty/rad-niazadeh/solving-open-problems-in-operations-reserach-using-ai.pdf" target="_blank" rel="noopener">Paper (PDF)</a>
+
+    <div class="notice-stack">
+      <div id="unverified-banner" class="unverified-banner" role="alert" hidden>
+        <strong>Unverified entries.</strong>
+        <span class="unverified-notice"></span>
+        <span class="unverified-email-wrap"> Contact
+          <span class="unverified-email"></span> if any entry is resolved or misstated.</span>
+      </div>
     </div>
 
     <div class="list-controls" role="search">
@@ -92,11 +106,18 @@
     <nav class="pagination" id="pagination" aria-label="Problem list pagination">
       <!-- Populated by JavaScript -->
     </nav>
+
+    <div class="notice-stack">
+      <div class="unverified-banner prompt-banner">
+        To see more details about our agentic pipeline and prompts, see the draft paper here:
+        <a href="https://faculty.chicagobooth.edu/-/media/faculty/rad-niazadeh/solving-open-problems-in-operations-reserach-using-ai.pdf" target="_blank" rel="noopener">Paper (PDF)</a>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer">
     <div class="footer-content">
-      <div class="footer-maintainers">Maintainers: Eric Fithian, Rad Niazadeh, Pranav Nuti</div>
+      <div class="footer-maintainers">Maintainers: Rad Niazadeh, Pranav Nuti, Eric Fithian, Pete Westbrook, Jiechen Zhang</div>
       <div>Open Problems in Operations Research</div>
       <div>We acknowledge funding from the Center for Applied Artificial Intelligence at the University of Chicago Booth School of Business.</div>
     </div>
@@ -291,7 +312,7 @@
       if (!iso || typeof iso !== "string") return "";
       const d = new Date(iso);
       if (isNaN(d.getTime())) return escapeHtml(iso);
-      return escapeHtml(d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }));
+      return escapeHtml(d.toLocaleString(undefined, { dateStyle: "medium" }));
     }
 
     function suitabilityRank(value) {
@@ -391,16 +412,23 @@
 
       const listEl = document.getElementById('problem-list');
       if (pageProblems.length === 0) {
-        listEl.innerHTML = `<li class="problem-card problem-card-empty">No problems match the current search or topic.</li>`;
+        const query = VIEW.q.trim();
+        const message = query
+          ? `No problems match &ldquo;${escapeHtml(query)}&rdquo;.`
+          : "No problems match the current search or topic.";
+        listEl.innerHTML = `<li class="problem-card problem-card-empty">
+            <span>${message}</span>
+            <button type="button" class="list-clear-btn" data-clear-filters>Clear all filters</button>
+          </li>`;
       } else {
         listEl.innerHTML = pageProblems.map((p, idx) => `
           <li class="problem-card">
-            <div class="problem-card-id">${String(p.__number).padStart(3, "\u2007")}</div>
+            <div class="problem-card-id">${p.__number}</div>
             <div class="problem-card-body">
               <h2 class="problem-card-title math-content"><a class="problem-card-link" href="${problemHref(p)}">${formatTitleWithMath(p.title)}</a></h2>
               <div class="problem-card-meta">
                 <span>${formatSourcePaper(p)}</span>
-                ${p.pipeline_generated_at_utc ? `<span>${formatUploadDate(p.pipeline_generated_at_utc)}</span>` : ""}${formatAttemptBadge(p)}${formatQuantitativeBoundsBadge(p)}${formatAreaBadge(p)}
+                ${p.pipeline_generated_at_utc ? `<span class="meta-date">${formatUploadDate(p.pipeline_generated_at_utc)}</span>` : ""}<span class="meta-badges">${formatAttemptBadge(p)}${formatQuantitativeBoundsBadge(p)}${formatAreaBadge(p)}</span>
               </div>
             </div>
           </li>
@@ -410,6 +438,27 @@
       renderStatus();
       renderPagination();
       typesetList();
+    }
+
+    function renderListSkeleton() {
+      const listEl = document.getElementById('problem-list');
+      listEl.innerHTML = Array.from({ length: 5 }, () => `
+          <li class="problem-card problem-card-skeleton" aria-hidden="true">
+            <span class="skeleton-bar" style="width:2rem"></span>
+            <div class="problem-card-body">
+              <span class="skeleton-bar" style="width:62%;height:1.1rem"></span>
+              <span class="skeleton-bar" style="width:38%"></span>
+            </div>
+          </li>
+        `).join('');
+    }
+
+    function prefersReducedMotion() {
+      return Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    }
+
+    function scrollToListTop() {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
     }
 
     function renderStatus() {
@@ -484,11 +533,20 @@
         navEl.innerHTML = "";
         return;
       }
+      const window_ = new Set([1, totalPages, VIEW.page - 1, VIEW.page, VIEW.page + 1]);
+      const pages = [...window_].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+
       let html = '';
       html += `<a href="#" data-page="${VIEW.page - 1}" class="${VIEW.page === 1 ? 'disabled' : ''}" ${VIEW.page === 1 ? 'aria-disabled="true"' : ''}>Previous</a>`;
-      for (let i = 1; i <= totalPages; i++) {
+      let previous = 0;
+      for (const i of pages) {
+        if (i - previous > 1) {
+          html += `<span class="pagination-gap" aria-hidden="true">…</span>`;
+        }
         const activeClass = i === VIEW.page ? 'current' : '';
-        html += `<a href="#" data-page="${i}" class="${activeClass}">${i}</a>`;
+        const current = i === VIEW.page ? ' aria-current="page"' : '';
+        html += `<a href="#" data-page="${i}" class="${activeClass}"${current}>${i}</a>`;
+        previous = i;
       }
       html += `<a href="#" data-page="${VIEW.page + 1}" class="${VIEW.page === totalPages ? 'disabled' : ''}" ${VIEW.page === totalPages ? 'aria-disabled="true"' : ''}>Next</a>`;
       navEl.innerHTML = html;
@@ -556,7 +614,7 @@
         const label = String(entry.shortLabel || entry.label || value);
         const count = counts.get(value) || 0;
         const active = VIEW.journal === value ? " journal-tab-active" : "";
-        return `<button type="button" class="journal-tab${active}" data-journal="${escapeHtml(value)}">${escapeHtml(label)} (${count})</button>`;
+        return `<button type="button" class="journal-tab${active}" data-journal="${escapeHtml(value)}">${escapeHtml(label)} <span class="journal-tab-count">${count}</span></button>`;
       }).join("");
     }
 
@@ -669,10 +727,19 @@
         applyFilters();
         writeStateToUrl();
         renderProblems();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        scrollToListTop();
       });
 
       listEl.addEventListener("click", (event) => {
+        if (event.target.closest("[data-clear-filters]")) {
+          event.preventDefault();
+          VIEW.q = "";
+          VIEW.category = "";
+          VIEW.area = "";
+          VIEW.attempt = "";
+          refresh({ resetPage: true });
+          return;
+        }
         const pill = event.target.closest(".area-pill-btn");
         if (!pill) {
           return;
@@ -686,7 +753,7 @@
           VIEW.category = AREA_TO_CATEGORY[area.toLowerCase()] || VIEW.category;
         }
         refresh({ resetPage: true });
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        scrollToListTop();
       });
     }
 
@@ -779,6 +846,7 @@
     }
 
     async function boot() {
+      renderListSkeleton();
       try {
         readStateFromUrl();
         const solutionManifest = await loadSolutionAttemptManifest();

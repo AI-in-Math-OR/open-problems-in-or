@@ -55,9 +55,11 @@
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
   }
 
-  function setBanner(text) {
+  function setBanner(text, state) {
     if (!els.banner) return;
     els.banner.textContent = text;
+    els.banner.classList.toggle("is-connected", state === "connected");
+    els.banner.classList.toggle("is-scaffold", state === "scaffold");
   }
 
   function setError(node, message) {
@@ -114,6 +116,28 @@
     setError(els.uploadError, "");
   }
 
+  /** ISO stamps are for the API, not the reader; fall back to the raw string. */
+  function formatUploadDate(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return raw;
+    return date.toLocaleString(undefined, { dateStyle: "medium" });
+  }
+
+  function statusPill(status) {
+    const pill = document.createElement("span");
+    pill.className = "upload-status-pill";
+    const key = status.toLowerCase();
+    if (key.startsWith("review")) {
+      pill.classList.add("is-reviewed");
+    } else if (key.startsWith("pending") || key.startsWith("queue") || key.startsWith("process")) {
+      pill.classList.add("is-pending");
+    }
+    pill.textContent = status;
+    return pill;
+  }
+
   function renderUploads(items) {
     const list = Array.isArray(items) ? items : [];
     els.uploadList.innerHTML = "";
@@ -131,11 +155,11 @@
       name.textContent = item.filename || item.name || "upload.pdf";
       const meta = document.createElement("span");
       meta.className = "upload-list-meta";
-      const stamp = item.uploaded_at || item.created_at || "";
-      const status = item.status || "received";
-      meta.textContent = stamp ? `${status} · ${stamp}` : status;
+      meta.textContent = formatUploadDate(item.uploaded_at || item.created_at || "");
+      const status = String(item.status || "received").trim() || "received";
       li.appendChild(name);
       li.appendChild(meta);
+      li.appendChild(statusPill(status));
       els.uploadList.appendChild(li);
     }
   }
@@ -221,7 +245,7 @@
       return;
     }
 
-    els.dropzone.classList.add("is-disabled");
+    els.dropzone.classList.add("is-uploading");
     try {
       const body = new FormData();
       body.append("file", file, file.name);
@@ -239,14 +263,14 @@
     } catch (err) {
       setError(els.uploadError, err.message);
     } finally {
-      els.dropzone.classList.remove("is-disabled");
+      els.dropzone.classList.remove("is-uploading");
       els.fileInput.value = "";
     }
   }
 
   function wireDropzone() {
     const openPicker = () => {
-      if (els.dropzone.classList.contains("is-disabled")) return;
+      if (els.dropzone.classList.contains("is-uploading")) return;
       els.fileInput.click();
     };
     els.dropzone.addEventListener("click", openPicker);
@@ -280,10 +304,11 @@
 
   async function boot() {
     if (apiConfigured()) {
-      setBanner(`Connected to upload API at ${apiBase}`);
+      setBanner(`Connected to upload API at ${apiBase}`, "connected");
     } else {
       setBanner(
-        "Scaffold mode: set SITE_CONFIG.uploadApiBaseUrl in js/site-config.js to enable login and uploads against the backend."
+        "Scaffold mode: set SITE_CONFIG.uploadApiBaseUrl in js/site-config.js to enable login and uploads against the backend.",
+        "scaffold"
       );
     }
 
