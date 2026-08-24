@@ -1,4 +1,4 @@
-"""FastAPI entrypoint for login-protected PDF uploads."""
+"""FastAPI entrypoint for login-protected PDF uploads and extract jobs."""
 
 from __future__ import annotations
 
@@ -7,6 +7,8 @@ import re
 import uuid
 from typing import Any
 from typing import Dict
+from typing import List
+from typing import Optional
 
 from fastapi import Depends
 from fastapi import FastAPI
@@ -23,7 +25,7 @@ from . import auth
 from . import config
 from . import db as db_mod
 
-app = FastAPI(title="OR Open Problems Upload API", version="0.1.0")
+app = FastAPI(title="OR Open Problems Upload API", version="0.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.CORS_ORIGINS,
@@ -36,6 +38,10 @@ app.add_middleware(
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=128)
     password: str = Field(min_length=1, max_length=256)
+
+
+class CreateJobRequest(BaseModel):
+    kind: str = Field(default="extract", min_length=1, max_length=64)
 
 
 @app.on_event("startup")
@@ -67,7 +73,6 @@ def login(body: LoginRequest) -> Dict[str, Any]:
 
 @app.post("/auth/logout")
 def logout(_user: Dict[str, Any] = Depends(auth.require_user)) -> Dict[str, bool]:
-    # Stateless JWT: client discards the token. Endpoint kept for API symmetry.
     return {"ok": True}
 
 
@@ -83,11 +88,28 @@ def _safe_filename(name: str) -> str:
     return base[:180]
 
 
-@app.post("/api/uploads")
-async def create_upload(
-    file: UploadFile = File(...),
-    user: Dict[str, Any] = Depends(auth.require_user),
-) -> Dict[str, Any]:
+def _upload_meta(row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "id": row["id"],
+        "filename": row["filename"],
+        "size_bytes": row["size_bytes"],
+        "status": row["status"],
+        "uploaded_at": row["uploaded_at"],
+        "sha256": row["sha256"],
+        "user_id": row.get("user_id"),
+        "parent_upload_id": row.get("parent_upload_id"),
+        "kind": row.get("kind") or "source",
+    }
+
+
+def _authorize_upload_access(row: Dict[str, Any], actor: Dict[str, Any]) -> None:
+    if actor.get("is_worker"):
+        return
+    if int(row["user_id"]) != int(actor["id"]) and actor.get("role") != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your upload.")
+
+
+async def _read_pdf_upload(file: UploadFile) -> tuple[str, bytes, str]:
     filename = file.filename or "upload.pdf"
     content_type = (file.content_type or "").lower()
     if content_type not in {"application/pdf", "application/x-pdf", ""} and not filename.lower().endswith(
@@ -104,7 +126,7 @@ async def create_upload(
         )
 
     digest = hashlib.sha256()
-    chunks = []
+    chunks: List[bytes] = []
     total = 0
     while True:
         chunk = await file.read(1024 * 1024)
@@ -122,72 +144,49 @@ async def create_upload(
     if total == 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty file.")
 
-    # Light magic-byte check
-    head = chunks[0][:5] if chunks else b""
-    if not head.startswith(b"%PDF"):
+    data = b"".join(chunks)
+    if not data.startswith(b"%PDF"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File does not look like a PDF.",
         )
+    return _safe_filename(filename), data, digest.hexdigest()
 
-    stored_name = f"{uuid.uuid4().hex}_{_safe_filename(filename)}"
-    path = db_mod.storage_path(stored_name)
-    path.write_bytes(b"".join(chunks))
 
+@app.post("/api/uploads")
+async def create_upload(
+    file: UploadFile = File(...),
+    user: Dict[str, Any] = Depends(auth.require_user),
+) -> Dict[str, Any]:
+    filename, data, sha256 = await _read_pdf_upload(file)
+    stored_name = f"{uuid.uuid4().hex}_{filename}"
+    db_mod.storage_path(stored_name).write_bytes(data)
     row = db_mod.insert_upload(
         user_id=int(user["id"]),
-        filename=_safe_filename(filename),
+        filename=filename,
         stored_name=stored_name,
         content_type="application/pdf",
-        size_bytes=total,
-        sha256=digest.hexdigest(),
+        size_bytes=len(data),
+        sha256=sha256,
         status="received",
+        kind="source",
     )
-    return {
-        "id": row["id"],
-        "filename": row["filename"],
-        "size_bytes": row["size_bytes"],
-        "status": row["status"],
-        "uploaded_at": row["uploaded_at"],
-        "sha256": row["sha256"],
-    }
+    return _upload_meta(row)
 
 
 @app.get("/api/uploads")
 def list_uploads(user: Dict[str, Any] = Depends(auth.require_user)) -> Dict[str, Any]:
     items = db_mod.list_uploads_for_user(int(user["id"]))
-    return {
-        "items": [
-            {
-                "id": item["id"],
-                "filename": item["filename"],
-                "size_bytes": item["size_bytes"],
-                "status": item["status"],
-                "uploaded_at": item["uploaded_at"],
-                "sha256": item["sha256"],
-            }
-            for item in items
-        ]
-    }
-
-
-def _upload_meta(row: Dict[str, Any]) -> Dict[str, Any]:
-    return {
-        "id": row["id"],
-        "filename": row["filename"],
-        "size_bytes": row["size_bytes"],
-        "status": row["status"],
-        "uploaded_at": row["uploaded_at"],
-        "sha256": row["sha256"],
-        "user_id": row["user_id"],
-    }
-
-
-def _authorize_upload_access(row: Dict[str, Any], actor: Dict[str, Any]) -> None:
-    if actor.get("is_worker"):
-        return
-    if int(row["user_id"]) != int(actor["id"]) and actor.get("role") != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your upload.")
+    out = []
+    for item in items:
+        meta = _upload_meta(item)
+        if (item.get("kind") or "source") == "source":
+            jobs = db_mod.list_jobs_for_upload(int(item["id"]), limit=5)
+            meta["jobs"] = [db_mod.job_public(j) for j in jobs]
+        else:
+            meta["jobs"] = []
+        out.append(meta)
+    return {"items": out}
 
 
 @app.get("/api/uploads/{upload_id}")
@@ -199,7 +198,9 @@ def get_upload(
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
     _authorize_upload_access(row, actor)
-    return _upload_meta(row)
+    meta = _upload_meta(row)
+    meta["jobs"] = [db_mod.job_public(j) for j in db_mod.list_jobs_for_upload(upload_id)]
+    return meta
 
 
 @app.get("/api/uploads/{upload_id}/file")
@@ -207,7 +208,6 @@ def download_upload_file(
     upload_id: int,
     actor: Dict[str, Any] = Depends(auth.require_user_or_worker),
 ) -> FileResponse:
-    """Download the stored PDF (owner/admin JWT or WORKER_API_TOKEN)."""
     row = db_mod.get_upload_by_id(upload_id)
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
@@ -223,3 +223,133 @@ def download_upload_file(
         media_type=row.get("content_type") or "application/pdf",
         filename=row["filename"],
     )
+
+
+@app.post("/api/uploads/{upload_id}/jobs")
+def create_upload_job(
+    upload_id: int,
+    body: CreateJobRequest,
+    user: Dict[str, Any] = Depends(auth.require_user),
+) -> Dict[str, Any]:
+    kind = (body.kind or "extract").strip().lower()
+    if kind != "extract":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only kind=extract is supported for now.",
+        )
+    row = db_mod.get_upload_by_id(upload_id)
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(row, user)
+    if (row.get("kind") or "source") != "source":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only extract from source paper uploads.",
+        )
+    job = db_mod.create_job(upload_id=upload_id, kind=kind)
+    return db_mod.job_public(job)
+
+
+@app.get("/api/uploads/{upload_id}/jobs")
+def list_upload_jobs(
+    upload_id: int,
+    user: Dict[str, Any] = Depends(auth.require_user),
+) -> Dict[str, Any]:
+    row = db_mod.get_upload_by_id(upload_id)
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(row, user)
+    jobs = db_mod.list_jobs_for_upload(upload_id)
+    return {"items": [db_mod.job_public(j) for j in jobs]}
+
+
+@app.get("/api/jobs/{job_id}")
+def get_job(
+    job_id: int,
+    actor: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    upload = db_mod.get_upload_by_id(int(job["upload_id"]))
+    if not upload:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(upload, actor)
+    return db_mod.job_public(job)
+
+
+@app.post("/api/jobs/claim")
+def claim_job(
+    kind: str = "extract",
+    _worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    if not _worker.get("is_worker"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Worker token required.",
+        )
+    job = db_mod.claim_next_job(kind=(kind or "extract").strip().lower())
+    if not job:
+        return {"job": None}
+    upload = db_mod.get_upload_by_id(int(job["upload_id"]))
+    return {
+        "job": db_mod.job_public(job),
+        "upload": _upload_meta(upload) if upload else None,
+    }
+
+
+@app.post("/api/jobs/{job_id}/fail")
+def fail_job(
+    job_id: int,
+    body: Dict[str, Any],
+    worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    if not worker.get("is_worker"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    if job["status"] not in {"queued", "running"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
+    error = str(body.get("error_message") or body.get("error") or "Worker failed").strip()
+    return db_mod.job_public(db_mod.mark_job_failed(job_id=job_id, error_message=error))
+
+
+@app.post("/api/jobs/{job_id}/result")
+async def upload_job_result(
+    job_id: int,
+    file: UploadFile = File(...),
+    worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    """Worker posts the extracted-problems PDF; stored as a new upload on the tab."""
+    if not worker.get("is_worker"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    if job["status"] != "running":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not running.")
+    source = db_mod.get_upload_by_id(int(job["upload_id"]))
+    if not source:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source upload missing.")
+
+    filename, data, sha256 = await _read_pdf_upload(file)
+    # Prefer a clear name on the Upload tab.
+    display = _safe_filename(f"extracted_{source['filename']}")
+    if filename and filename != "upload.pdf":
+        display = _safe_filename(filename)
+    stored_name = f"{uuid.uuid4().hex}_{display}"
+    db_mod.storage_path(stored_name).write_bytes(data)
+    result = db_mod.insert_upload(
+        user_id=int(source["user_id"]),
+        filename=display,
+        stored_name=stored_name,
+        content_type="application/pdf",
+        size_bytes=len(data),
+        sha256=sha256,
+        status="extracted",
+        parent_upload_id=int(source["id"]),
+        kind="extraction",
+    )
+    done = db_mod.mark_job_done(job_id=job_id, result_upload_id=int(result["id"]))
+    return {"job": db_mod.job_public(done), "upload": _upload_meta(result)}
