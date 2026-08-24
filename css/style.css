@@ -6,8 +6,8 @@
   scrollbar-color: var(--color-rule-heavy) transparent;
 
   /* ---- ground planes: one hue (~152°), four levels + a deep wash ---- */
-  --color-bg:              #0B1410;  /* hsl(153.3,29%,6.1%)  canvas, body */
-  --color-bg-deep:         #070D0A;  /* masthead + footer wash            */
+  --color-bg:              #121F19;  /* hsl(153,26%,9.5%)  canvas, body   */
+  --color-bg-deep:         #0D1712;  /* masthead + footer wash            */
   --color-surface:         #16231E;  /* L1 resting containers  1.15:1     */
   --color-surface-raised:  #1D2E26;  /* L2 inset controls/wells 1.31:1    */
   --color-surface-overlay: #293B32;  /* L3 hover lift, team cards 1.57:1  */
@@ -20,7 +20,7 @@
   /* ---- accent: champagne gold, pushed to 47° so it never muddies on green ---- */
   --color-accent:          #DAC473;  /* hsl(47.2,58%,65%) */
   --color-accent-hover:    #F0DEA6;
-  --color-accent-contrast: #0B1410;  /* text/glyph colour ON a gold fill */
+  --color-accent-contrast: #121F19;  /* text/glyph colour ON a gold fill */
   --color-accent-light:    rgba(240, 235, 220, 0.08);  /* NEUTRAL LIFT — see §1.2 */
   --color-focus-ring:      rgba(218, 196, 115, 0.55);
 
