@@ -920,9 +920,8 @@ select.control-input {
 
 /* ---------- Problem detail page (spec §5.3) ---------- */
 
-/* Cap the reading shell so the dead right gutter disappears. The masthead and
-   footer stay at --content-width; --reading-width itself is untouched. */
-body.page-problem main { max-width: calc(var(--reading-width) + 4rem); }
+/* Page shell matches the Problems listing (--content-width). Prose and math
+   inside sections still use --reading-width so line length stays readable. */
 
 main.is-loading .problem-section,
 main.is-loading .problem-source-block,
