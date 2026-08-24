@@ -15,6 +15,7 @@ from fastapi import HTTPException
 from fastapi import UploadFile
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from pydantic import Field
 
@@ -168,3 +169,57 @@ def list_uploads(user: Dict[str, Any] = Depends(auth.require_user)) -> Dict[str,
             for item in items
         ]
     }
+
+
+def _upload_meta(row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "id": row["id"],
+        "filename": row["filename"],
+        "size_bytes": row["size_bytes"],
+        "status": row["status"],
+        "uploaded_at": row["uploaded_at"],
+        "sha256": row["sha256"],
+        "user_id": row["user_id"],
+    }
+
+
+def _authorize_upload_access(row: Dict[str, Any], actor: Dict[str, Any]) -> None:
+    if actor.get("is_worker"):
+        return
+    if int(row["user_id"]) != int(actor["id"]) and actor.get("role") != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your upload.")
+
+
+@app.get("/api/uploads/{upload_id}")
+def get_upload(
+    upload_id: int,
+    actor: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    row = db_mod.get_upload_by_id(upload_id)
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(row, actor)
+    return _upload_meta(row)
+
+
+@app.get("/api/uploads/{upload_id}/file")
+def download_upload_file(
+    upload_id: int,
+    actor: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> FileResponse:
+    """Download the stored PDF (owner/admin JWT or WORKER_API_TOKEN)."""
+    row = db_mod.get_upload_by_id(upload_id)
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(row, actor)
+    path = db_mod.storage_path(row["stored_name"])
+    if not path.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Upload file missing on disk.",
+        )
+    return FileResponse(
+        path,
+        media_type=row.get("content_type") or "application/pdf",
+        filename=row["filename"],
+    )

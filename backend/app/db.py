@@ -136,5 +136,11 @@ def list_uploads_for_user(user_id: int, *, limit: int = 50) -> List[Dict[str, An
     return [dict(row) for row in rows]
 
 
+def get_upload_by_id(upload_id: int) -> Optional[Dict[str, Any]]:
+    with db() as conn:
+        row = conn.execute("SELECT * FROM uploads WHERE id = ?", (upload_id,)).fetchone()
+    return dict(row) if row else None
+
+
 def storage_path(stored_name: str) -> Path:
     return config.UPLOAD_DIR / stored_name

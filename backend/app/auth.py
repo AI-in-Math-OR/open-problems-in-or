@@ -100,3 +100,26 @@ async def require_user(
             detail="User no longer exists.",
         )
     return user
+
+
+def _is_worker_token(raw: str) -> bool:
+    expected = config.WORKER_API_TOKEN
+    return bool(expected) and raw == expected
+
+
+async def require_user_or_worker(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+) -> Dict[str, Any]:
+    """Human JWT session or shared WORKER_API_TOKEN for service-to-service calls."""
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+        )
+    token = credentials.credentials
+    if _is_worker_token(token):
+        return {"id": 0, "username": "worker", "role": "worker", "is_worker": True}
+    user = await require_user(credentials)
+    user = dict(user)
+    user["is_worker"] = False
+    return user
