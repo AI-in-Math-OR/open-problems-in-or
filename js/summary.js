@@ -32,7 +32,7 @@
 
   // Ordered best first, so the chart reads top-down from strongest result.
   const SCORE_LEVELS = [
-    { key: "score3", score: 3, label: "3/3 · full solution of the open problem (e.g., bound improved as stated)", tone: "positive" },
+    { key: "score3", score: 3, label: "3/3 · verifier-rated full solution (e.g., bound improved as stated)", tone: "positive" },
     { key: "score2", score: 2, label: "2/3 · major progress, partially improved main result (e.g., bound slightly improved)", tone: "teal" },
     { key: "score1", score: 1, label: "1/3 · progress, main result not improved (e.g., bound unmoved)", tone: "caution" },
     { key: "score0", score: 0, label: "0/3 · little beyond a restatement of the problem", tone: "neutral" },
@@ -194,7 +194,7 @@
       { value: total, label: "Open problems catalogued", note: `${venueNote} — ${withReview} with a literature review` },
       { value: solved, label: "Problems with a solution", note: `${formatPct(solved, total)} of all problems`, tone: "positive" },
       { value: partial, label: "Problems with partial progress", note: `${formatPct(partial, total)} of all problems`, tone: "caution" },
-      { value: none, label: "Problems not yet attempted", note: `${formatPct(none, total)} of all problems` },
+      { value: none, label: "Problems with no write-up yet", note: `${formatPct(none, total)} of all problems` },
       { value: solutionDocs, label: "Solution write-ups" },
       { value: partialDocs, label: "Partial-progress write-ups" },
     ];
@@ -320,7 +320,7 @@
         const none = venueRows.filter((r) => r.outcome === "none").length;
         section.appendChild(el(
           "p", "summary-note",
-          `${venueRows.length} problems — ${solved} with a solution, ${partial} with partial progress, ${none} not yet attempted.`
+          `${venueRows.length} problems — ${solved} with a solution, ${partial} with partial progress, ${none} with no write-up yet.`
         ));
 
         const outcomeParts = OUTCOMES.map((o) => ({
