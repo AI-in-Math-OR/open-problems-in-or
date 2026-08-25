@@ -505,15 +505,21 @@
       return "all";
     }
 
+    const CLASSIFICATION_PILLS = {
+      counterexample: { label: "counterexample", cls: "label-pill-counterexample" },
+      impossibility: { label: "impossibility", cls: "label-pill-impossibility" },
+      construction: { label: "construction", cls: "label-pill-construction" },
+      analysis: { label: "analysis", cls: "label-pill-analysis" },
+      characterization: { label: "characterization", cls: "label-pill-characterization" },
+      reduction: { label: "reduction", cls: "label-pill-reduction" },
+    };
+
     function formatAttemptBadge(p) {
       if (p.__attemptCounts.solutions > 0) {
-        const classification = p.__solutionClassification;
-        let classPill = "";
-        if (classification === "direct_proof") {
-          classPill = ` <span class="label-pill label-pill-direct-proof">direct proof</span>`;
-        } else if (classification === "counterexample") {
-          classPill = ` <span class="label-pill label-pill-counterexample">counterexample</span>`;
-        }
+        const pill = CLASSIFICATION_PILLS[p.__solutionClassification];
+        const classPill = pill
+          ? ` <span class="label-pill ${pill.cls}">${pill.label}</span>`
+          : "";
         return `<span><span class="attempt-pill attempt-pill-solution">${p.__attemptCounts.solutions} solution${p.__attemptCounts.solutions === 1 ? "" : "s"}</span>${classPill}</span>`;
       }
       if (p.__attemptCounts.partial > 0) {
@@ -807,7 +813,7 @@
         const attempts = attemptsForProblem(solutionManifest, p.problem_id);
         const solutionClassification = attempts.solutions
           .map((sol) => sol && sol.classification)
-          .find((value) => value === "direct_proof" || value === "counterexample") || "";
+          .find((value) => value && CLASSIFICATION_PILLS[value]) || "";
         const enriched = {
           ...p,
           __globalIndex: idx + 1,

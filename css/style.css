@@ -48,6 +48,15 @@
   --tone-clay:            #E28C88;
   --tone-clay-bg:         rgba(226, 140, 136, 0.14);
   --tone-clay-border:     rgba(226, 140, 136, 0.38);
+  --tone-plum:            #B49CE4;
+  --tone-plum-bg:         rgba(180, 156, 228, 0.14);
+  --tone-plum-border:     rgba(180, 156, 228, 0.38);
+  --tone-orchid:          #D48FC0;
+  --tone-orchid-bg:       rgba(212, 143, 192, 0.14);
+  --tone-orchid-border:   rgba(212, 143, 192, 0.38);
+  --tone-olive:           #B5C983;
+  --tone-olive-bg:        rgba(181, 201, 131, 0.14);
+  --tone-olive-border:    rgba(181, 201, 131, 0.38);
   --tone-neutral:         #607769;  /* the "no write-up yet" segment */
 
   /* ---- shape ---- */
@@ -288,7 +297,7 @@ main {
 /* Work-in-progress chip (spec §5.1a) — the eight !important declarations are gone. */
 /* Site-status stamp. Deliberately steps OUTSIDE the semantic tone vocabulary:
    every --tone-* colour is already spoken for by the data pills (caution=partial
-   progress, info=unverified, positive=solution, teal=direct proof, clay=error), so
+   progress, info=unverified, positive=solution, the proof-style pills, clay=error), so
    reusing one made this notice read as a per-problem status. It is distinguished
    from those pills on three axes at once — neutral ink instead of a tone, a squared
    silhouette instead of a pill, and a gold edge instead of a leading dot. */
@@ -529,10 +538,35 @@ main {
   color: var(--tone-info);
 }
 
-.label-pill-direct-proof {
+/* Proof-style pills — one tone per solution category (mirrored by the summary chart). */
+.label-pill-construction {
   border: 1px solid var(--tone-teal-border);
   background: var(--tone-teal-bg);
   color: var(--tone-teal);
+}
+
+.label-pill-characterization {
+  border: 1px solid var(--tone-plum-border);
+  background: var(--tone-plum-bg);
+  color: var(--tone-plum);
+}
+
+.label-pill-analysis {
+  border: 1px solid var(--tone-info-border);
+  background: var(--tone-info-bg);
+  color: var(--tone-info);
+}
+
+.label-pill-reduction {
+  border: 1px solid var(--tone-olive-border);
+  background: var(--tone-olive-bg);
+  color: var(--tone-olive);
+}
+
+.label-pill-impossibility {
+  border: 1px solid var(--tone-orchid-border);
+  background: var(--tone-orchid-bg);
+  color: var(--tone-orchid);
 }
 
 .label-pill-counterexample {
@@ -1588,6 +1622,10 @@ a.problem-seq-btn:focus-visible {
 .tone-neutral { --tone: var(--tone-neutral); }
 .tone-teal { --tone: var(--tone-teal); }
 .tone-clay { --tone: var(--tone-clay); }
+.tone-info { --tone: var(--tone-info); }
+.tone-plum { --tone: var(--tone-plum); }
+.tone-orchid { --tone: var(--tone-orchid); }
+.tone-olive { --tone: var(--tone-olive); }
 .tone-accent { --tone: var(--color-accent); }
 
 .bar-seg,

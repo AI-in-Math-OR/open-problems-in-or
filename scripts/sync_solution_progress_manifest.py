@@ -8,7 +8,14 @@ from typing import Any, Optional
 WEBSITE_ROOT = pathlib.Path("data/llm_math_export")
 ATTEMPTS_ROOT = WEBSITE_ROOT / "solution_progress"
 CLASSIFICATIONS_PATH = ATTEMPTS_ROOT / "solution_classifications.json"
-VALID_CLASSIFICATIONS = {"direct_proof", "counterexample"}
+VALID_CLASSIFICATIONS = {
+    "counterexample",
+    "impossibility",
+    "construction",
+    "analysis",
+    "characterization",
+    "reduction",
+}
 
 
 def main() -> None:

@@ -20,7 +20,11 @@
   ];
 
   const SOLUTION_TYPES = [
-    { key: "direct_proof", label: "Direct proof", tone: "teal" },
+    { key: "construction", label: "Explicit construction", tone: "teal" },
+    { key: "characterization", label: "Exact characterization", tone: "plum" },
+    { key: "analysis", label: "Analysis / estimates", tone: "info" },
+    { key: "reduction", label: "Reduction / duality", tone: "olive" },
+    { key: "impossibility", label: "Impossibility / lower bound", tone: "orchid" },
     { key: "counterexample", label: "Counterexample", tone: "clay" },
   ];
 
@@ -219,7 +223,7 @@
 
   function renderSolutionTypes(rows) {
     const host = document.getElementById("solution-type-bar");
-    const counts = { direct_proof: 0, counterexample: 0, unclassified: 0 };
+    const counts = Object.fromEntries(SOLUTION_TYPES.map((t) => [t.key, 0]));
     rows.forEach((row) => row.classifications.forEach((c) => {
       if (c in counts) counts[c] += 1;
     }));
@@ -228,7 +232,8 @@
     // its own segment keeps this chart's total equal to the write-up count above it
     // instead of quietly shrinking.
     const solutionDocs = rows.reduce((sum, r) => sum + r.solutions.length, 0);
-    counts.unclassified = Math.max(solutionDocs - counts.direct_proof - counts.counterexample, 0);
+    const classified = SOLUTION_TYPES.reduce((sum, t) => sum + counts[t.key], 0);
+    counts.unclassified = Math.max(solutionDocs - classified, 0);
     const segments = counts.unclassified
       ? [...SOLUTION_TYPES, { key: "unclassified", label: "Not yet classified", tone: "neutral" }]
       : SOLUTION_TYPES;

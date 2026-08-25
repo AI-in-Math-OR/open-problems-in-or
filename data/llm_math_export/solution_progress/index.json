@@ -131,7 +131,7 @@
           "label": "Solution #63 (PDF)",
           "path": "data/llm_math_export/solution_progress/W3170420696_p0/solutions/63.pdf",
           "filename": "63.pdf",
-          "classification": "direct_proof"
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -232,7 +232,8 @@
           "kind": "solution",
           "label": "Solution #18 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4221157708_p0/solutions/18.pdf",
-          "filename": "18.pdf"
+          "filename": "18.pdf",
+          "classification": "construction"
         }
       ],
       "partial_progress": []
@@ -256,7 +257,7 @@
           "label": "Solution #73 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4226226337_p0/solutions/73.pdf",
           "filename": "73.pdf",
-          "classification": "direct_proof"
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -267,7 +268,8 @@
           "kind": "solution",
           "label": "Solution #19 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4226352527_p0/solutions/19.pdf",
-          "filename": "19.pdf"
+          "filename": "19.pdf",
+          "classification": "counterexample"
         }
       ],
       "partial_progress": []
@@ -311,7 +313,8 @@
           "kind": "solution",
           "label": "Solution #23 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4285090266_p0/solutions/23.pdf",
-          "filename": "23.pdf"
+          "filename": "23.pdf",
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -344,7 +347,8 @@
           "kind": "solution",
           "label": "Solution #26 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4285092914_p0/solutions/26.pdf",
-          "filename": "26.pdf"
+          "filename": "26.pdf",
+          "classification": "impossibility"
         }
       ],
       "partial_progress": []
@@ -378,7 +382,7 @@
           "label": "Solution #78 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4377821221_p0/solutions/78.pdf",
           "filename": "78.pdf",
-          "classification": "direct_proof"
+          "classification": "impossibility"
         }
       ],
       "partial_progress": []
@@ -461,7 +465,8 @@
           "kind": "solution",
           "label": "Solution #5 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383533356_p0/solutions/5.pdf",
-          "filename": "5.pdf"
+          "filename": "5.pdf",
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -472,7 +477,8 @@
           "kind": "solution",
           "label": "Solution #6 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383533365_p0/solutions/6.pdf",
-          "filename": "6.pdf"
+          "filename": "6.pdf",
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -483,7 +489,8 @@
           "kind": "solution",
           "label": "Solution #7 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383533377_p0/solutions/7.pdf",
-          "filename": "7.pdf"
+          "filename": "7.pdf",
+          "classification": "construction"
         }
       ],
       "partial_progress": []
@@ -494,7 +501,8 @@
           "kind": "solution",
           "label": "Solution #8 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383533394_p0/solutions/8.pdf",
-          "filename": "8.pdf"
+          "filename": "8.pdf",
+          "classification": "counterexample"
         }
       ],
       "partial_progress": []
@@ -505,7 +513,8 @@
           "kind": "solution",
           "label": "Solution #9 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383533465_p0/solutions/9.pdf",
-          "filename": "9.pdf"
+          "filename": "9.pdf",
+          "classification": "reduction"
         }
       ],
       "partial_progress": []
@@ -516,7 +525,8 @@
           "kind": "solution",
           "label": "Solution #10 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383533535_p0/solutions/10.pdf",
-          "filename": "10.pdf"
+          "filename": "10.pdf",
+          "classification": "impossibility"
         }
       ],
       "partial_progress": []
@@ -538,7 +548,8 @@
           "kind": "solution",
           "label": "Solution #13 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383558051_p0/solutions/13.pdf",
-          "filename": "13.pdf"
+          "filename": "13.pdf",
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -549,7 +560,8 @@
           "kind": "solution",
           "label": "Solution #14 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383558054_p0/solutions/14.pdf",
-          "filename": "14.pdf"
+          "filename": "14.pdf",
+          "classification": "counterexample"
         }
       ],
       "partial_progress": []
@@ -571,7 +583,8 @@
           "kind": "solution",
           "label": "Solution #16 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4383558673_p0/solutions/16.pdf",
-          "filename": "16.pdf"
+          "filename": "16.pdf",
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -694,7 +707,7 @@
           "label": "Solution #97 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4388047886_p0/solutions/97.pdf",
           "filename": "97.pdf",
-          "classification": "direct_proof"
+          "classification": "characterization"
         }
       ],
       "partial_progress": []
@@ -812,7 +825,7 @@
           "label": "Solution #109 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4391601457_p0/solutions/109.pdf",
           "filename": "109.pdf",
-          "classification": "direct_proof"
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -846,7 +859,7 @@
           "label": "Solution #112 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4392646050_p0/solutions/112.pdf",
           "filename": "112.pdf",
-          "classification": "direct_proof"
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -998,7 +1011,7 @@
           "label": "Solution #125 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4400583097_p0/solutions/125.pdf",
           "filename": "125.pdf",
-          "classification": "direct_proof"
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -1131,7 +1144,7 @@
           "label": "Solution #138 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4404566852_p0/solutions/138.pdf",
           "filename": "138.pdf",
-          "classification": "direct_proof"
+          "classification": "reduction"
         }
       ],
       "partial_progress": []
@@ -1176,7 +1189,7 @@
           "label": "Solution #143 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4405639491_p0/solutions/143.pdf",
           "filename": "143.pdf",
-          "classification": "direct_proof"
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -1321,7 +1334,7 @@
           "label": "Solution #10 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4410395976_p0/solutions/10.pdf",
           "filename": "10.pdf",
-          "classification": "counterexample"
+          "classification": "impossibility"
         }
       ],
       "partial_progress": []
@@ -1405,7 +1418,7 @@
           "label": "Solution #19 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4411879499_p0/solutions/19.pdf",
           "filename": "19.pdf",
-          "classification": "direct_proof"
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -1417,7 +1430,7 @@
           "label": "Solution #20 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4411957271_p0/solutions/20.pdf",
           "filename": "20.pdf",
-          "classification": "direct_proof"
+          "classification": "analysis"
         }
       ],
       "partial_progress": []
@@ -1575,7 +1588,7 @@
           "label": "Solution #33 (PDF)",
           "path": "data/llm_math_export/solution_progress/W4415178980_p0/solutions/33.pdf",
           "filename": "33.pdf",
-          "classification": "direct_proof"
+          "classification": "impossibility"
         }
       ],
       "partial_progress": []
@@ -1725,7 +1738,7 @@
           "label": "Solution #47 (PDF)",
           "path": "data/llm_math_export/solution_progress/W7128591806_p0/solutions/47.pdf",
           "filename": "47.pdf",
-          "classification": "direct_proof"
+          "classification": "impossibility"
         }
       ],
       "partial_progress": []
@@ -1770,7 +1783,7 @@
           "label": "Solution #52 (PDF)",
           "path": "data/llm_math_export/solution_progress/W7150839694_p0/solutions/52.pdf",
           "filename": "52.pdf",
-          "classification": "direct_proof"
+          "classification": "characterization"
         }
       ],
       "partial_progress": []

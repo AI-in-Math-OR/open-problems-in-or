@@ -987,14 +987,19 @@
       section.hidden = false;
     }
 
+    const CLASSIFICATION_PILLS = {
+      counterexample: { label: "counterexample", cls: "label-pill-counterexample" },
+      impossibility: { label: "impossibility", cls: "label-pill-impossibility" },
+      construction: { label: "construction", cls: "label-pill-construction" },
+      analysis: { label: "analysis", cls: "label-pill-analysis" },
+      characterization: { label: "characterization", cls: "label-pill-characterization" },
+      reduction: { label: "reduction", cls: "label-pill-reduction" },
+    };
+
     function classificationPill(classification) {
-      if (classification === "direct_proof") {
-        return ` <span class="label-pill label-pill-direct-proof">direct proof</span>`;
-      }
-      if (classification === "counterexample") {
-        return ` <span class="label-pill label-pill-counterexample">counterexample</span>`;
-      }
-      return "";
+      const pill = CLASSIFICATION_PILLS[classification];
+      if (!pill) return "";
+      return ` <span class="label-pill ${pill.cls}">${pill.label}</span>`;
     }
 
     function renderAttemptGroup(title, attempts) {
