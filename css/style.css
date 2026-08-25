@@ -313,7 +313,7 @@ main {
   background: var(--color-surface-raised);
   color: var(--color-text-secondary);
   box-shadow: var(--hairline-top);
-  margin: 0 0 var(--space-5);
+  margin: 0;
 }
 
 .notice-stack { display: grid; gap: var(--space-2); margin-bottom: var(--space-6); }
@@ -321,11 +321,19 @@ main {
 /* ---------- Index hero (spec §5.1b) ---------- */
 
 .list-hero { margin: 0 0 var(--space-6); }
+.list-hero-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-2);
+}
 .list-hero-title { font-family: var(--font-display);
   font-size: clamp(1.85rem, 1.2rem + 1.8vw, 2.4rem);
-  line-height: 1.18; letter-spacing: -0.015em; margin: 0 0 var(--space-2); }
+  line-height: 1.18; letter-spacing: -0.015em; margin: 0; }
 .list-hero-sub { margin: 0; font-size: 1.05rem;
   color: var(--color-text-secondary); max-width: 62ch; }
+.list-hero .wip-warning { flex: 0 0 auto; margin-top: 0.45rem; }
 
 /* Problem list (home page) */
 .problem-list {
@@ -2357,6 +2365,9 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   .problem-detail-grid {
     grid-template-columns: 1fr;
     gap: 0.9rem;
+  }
+  .list-hero-topline {
+    flex-wrap: wrap;
   }
   .list-controls {
     flex-direction: column;
