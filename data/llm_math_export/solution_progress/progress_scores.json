@@ -19,11 +19,21 @@
       "batch_id": "ec_base_base_56sol_a2",
       "title": "5.6 sol second attempt base",
       "solver_model": "gpt-5.6-sol"
+    },
+    {
+      "batch_id": "ec_2it_ni",
+      "title": "two-iteration Codex ultra",
+      "solver_model": "gpt-5.6-sol"
+    },
+    {
+      "batch_id": "ec_base_base_56sol_ni",
+      "title": "Codex xhigh first pass",
+      "solver_model": "gpt-5.6-sol"
     }
   ],
   "counts": {
     "problems_scored": 27,
-    "attempts": 74
+    "attempts": 99
   },
   "problems": {
     "W3207326278_p0": {
@@ -47,6 +57,14 @@
         {
           "batch_id": "ec_base_base_56sol_a2",
           "batch_title": "5.6 sol second attempt base",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
           "solver_model": "gpt-5.6-sol",
           "progress_score": "1/3",
           "score": 1,
@@ -79,6 +97,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -107,6 +133,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -135,6 +169,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "repair_exhausted"
         }
       ]
     },
@@ -159,6 +201,14 @@
         {
           "batch_id": "ec_base_base_56sol_a2",
           "batch_title": "5.6 sol second attempt base",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
           "solver_model": "gpt-5.6-sol",
           "progress_score": "2/3",
           "score": 2,
@@ -191,6 +241,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "repair_exhausted"
         }
       ]
     },
@@ -219,6 +277,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter2"
         }
       ]
     },
@@ -246,6 +312,14 @@
           "solver_model": "gpt-5.6-sol",
           "progress_score": "1/3",
           "score": 1,
+          "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
           "final_status": "repair_exhausted"
         }
       ]
@@ -275,6 +349,14 @@
           "progress_score": "2/3",
           "score": 2,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "repair_exhausted"
         }
       ]
     },
@@ -295,6 +377,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -351,6 +441,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "repair_exhausted"
         }
       ]
     },
@@ -378,6 +476,14 @@
           "solver_model": "gpt-5.6-sol",
           "progress_score": "1/3",
           "score": 1,
+          "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
           "final_status": "repair_exhausted"
         }
       ]
@@ -407,6 +513,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "repair_exhausted"
         }
       ]
     },
@@ -434,6 +548,14 @@
           "solver_model": "gpt-5.6-sol",
           "progress_score": "1/3",
           "score": 1,
+          "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
           "final_status": "repair_exhausted"
         }
       ]
@@ -463,6 +585,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -483,6 +613,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -503,6 +641,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -523,6 +669,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -551,6 +705,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -579,6 +741,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter2"
         }
       ]
     },
@@ -606,6 +776,14 @@
           "solver_model": "gpt-5.6-sol",
           "progress_score": "1/3",
           "score": 1,
+          "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
           "final_status": "repair_exhausted"
         }
       ]
@@ -655,6 +833,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_base_base_56sol_ni",
+          "batch_title": "Codex xhigh first pass",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_manual"
         }
       ]
     },
@@ -675,6 +861,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter2"
         }
       ]
     },
@@ -703,6 +897,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "repair_exhausted"
         }
       ]
     },
@@ -723,6 +925,14 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_manual"
+        },
+        {
+          "batch_id": "ec_2it_ni",
+          "batch_title": "two-iteration Codex ultra",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     }
