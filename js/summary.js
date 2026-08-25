@@ -19,11 +19,13 @@
     { key: "none", label: "No write-up yet", tone: "neutral" },
   ];
 
+  // Ordered as a single hue sweep (olive → teal → blue → plum → orchid → clay), so
+  // the stacked bar reads as one continuous gradient rather than alternating colours.
   const SOLUTION_TYPES = [
-    { key: "construction", label: "Explicit construction", tone: "teal" },
-    { key: "characterization", label: "Exact characterization", tone: "plum" },
-    { key: "analysis", label: "Analysis / estimates", tone: "info" },
     { key: "reduction", label: "Reduction / duality", tone: "olive" },
+    { key: "construction", label: "Explicit construction", tone: "teal" },
+    { key: "analysis", label: "Analysis / estimates", tone: "info" },
+    { key: "characterization", label: "Exact characterization", tone: "plum" },
     { key: "impossibility", label: "Impossibility / lower bound", tone: "orchid" },
     { key: "counterexample", label: "Counterexample", tone: "clay" },
   ];
@@ -182,8 +184,14 @@
     const solutionDocs = rows.reduce((sum, r) => sum + r.solutions.length, 0);
     const partialDocs = rows.reduce((sum, r) => sum + r.partials.length, 0);
 
+    const venueCounts = new Map();
+    rows.forEach((r) => venueCounts.set(r.journal, (venueCounts.get(r.journal) ?? 0) + 1));
+    const venueNote = [...venueCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([j, n]) => `${n} ${/\(EC\)/.test(j) ? "EC" : "MOR"}`)
+      .join(" · ");
     const items = [
-      { value: total, label: "Open problems catalogued", note: `${withReview} with a literature review` },
+      { value: total, label: "Open problems catalogued", note: `${venueNote} — ${withReview} with a literature review` },
       { value: solved, label: "Problems with a solution", note: `${formatPct(solved, total)} of all problems`, tone: "positive" },
       { value: partial, label: "Problems with partial progress", note: `${formatPct(partial, total)} of all problems`, tone: "caution" },
       { value: none, label: "Problems not yet attempted", note: `${formatPct(none, total)} of all problems` },
@@ -284,6 +292,70 @@
       .join(" · ");
     document.getElementById("score-coverage").textContent =
       `${scored.length} of ${rows.length} problems have a scored attempt. ${coverage}`;
+  }
+
+  /**
+   * Per-venue mini-summary: outcome bar plus solution-style bar for each source
+   * venue (MOR, EC), so the two result sets can be read side by side without
+   * leaving the page.
+   */
+  function renderVenues(rows) {
+    const host = document.getElementById("venue-charts");
+    if (!host) return;
+    const venues = new Map();
+    rows.forEach((row) => {
+      const bucket = venues.get(row.journal) ?? [];
+      bucket.push(row);
+      venues.set(row.journal, bucket);
+    });
+    host.replaceChildren();
+    [...venues.entries()]
+      .sort((a, b) => b[1].length - a[1].length)
+      .forEach(([journal, venueRows]) => {
+        const section = el("div", "venue-block");
+        section.appendChild(el("h4", "venue-title", journal));
+
+        const solved = venueRows.filter((r) => r.outcome === "solved").length;
+        const partial = venueRows.filter((r) => r.outcome === "partial").length;
+        const none = venueRows.filter((r) => r.outcome === "none").length;
+        section.appendChild(el(
+          "p", "summary-note",
+          `${venueRows.length} problems — ${solved} with a solution, ${partial} with partial progress, ${none} not yet attempted.`
+        ));
+
+        const outcomeParts = OUTCOMES.map((o) => ({
+          ...o,
+          value: venueRows.filter((r) => r.outcome === o.key).length,
+        }));
+        section.appendChild(legend(outcomeParts, venueRows.length));
+        const outcomeWide = el("div", "bar-wide");
+        outcomeWide.appendChild(stackedBar(outcomeParts, venueRows.length));
+        section.appendChild(outcomeWide);
+
+        const counts = Object.fromEntries(SOLUTION_TYPES.map((t) => [t.key, 0]));
+        venueRows.forEach((row) => row.classifications.forEach((c) => {
+          if (c in counts) counts[c] += 1;
+        }));
+        const solutionDocs = venueRows.reduce((sum, r) => sum + r.solutions.length, 0);
+        const classified = SOLUTION_TYPES.reduce((sum, t) => sum + counts[t.key], 0);
+        counts.unclassified = Math.max(solutionDocs - classified, 0);
+        const segments = counts.unclassified
+          ? [...SOLUTION_TYPES, { key: "unclassified", label: "Not yet classified", tone: "neutral" }]
+          : SOLUTION_TYPES;
+        const typed = segments
+          .map((t) => ({ ...t, value: counts[t.key] }))
+          .filter((t) => t.value > 0);
+        const typeTotal = typed.reduce((sum, t) => sum + t.value, 0);
+        if (typeTotal > 0) {
+          section.appendChild(el("p", "summary-note venue-subnote", "Solution styles:"));
+          section.appendChild(legend(typed, typeTotal));
+          const typeWide = el("div", "bar-wide");
+          typeWide.appendChild(stackedBar(typed, typeTotal));
+          section.appendChild(typeWide);
+        }
+
+        host.appendChild(section);
+      });
   }
 
   function renderGrouped(hostId, rows, keyFn) {
@@ -445,7 +517,7 @@
       renderSolutionTypes(rows);
       renderScores(rows);
       renderGrouped("category-chart", rows, (r) => r.category);
-      renderGrouped("journal-chart", rows, (r) => r.journal);
+      renderVenues(rows);
       renderYears(rows);
       renderTable(rows);
       wireCsv(rows);

@@ -48,15 +48,15 @@
   --tone-clay:            #E28C88;
   --tone-clay-bg:         rgba(226, 140, 136, 0.14);
   --tone-clay-border:     rgba(226, 140, 136, 0.38);
-  --tone-plum:            #B49CE4;
-  --tone-plum-bg:         rgba(180, 156, 228, 0.14);
-  --tone-plum-border:     rgba(180, 156, 228, 0.38);
-  --tone-orchid:          #D48FC0;
-  --tone-orchid-bg:       rgba(212, 143, 192, 0.14);
-  --tone-orchid-border:   rgba(212, 143, 192, 0.38);
-  --tone-olive:           #B5C983;
-  --tone-olive-bg:        rgba(181, 201, 131, 0.14);
-  --tone-olive-border:    rgba(181, 201, 131, 0.38);
+  --tone-plum:            #AFA3E2;
+  --tone-plum-bg:         rgba(175, 163, 226, 0.14);
+  --tone-plum-border:     rgba(175, 163, 226, 0.38);
+  --tone-orchid:          #CE93C6;
+  --tone-orchid-bg:       rgba(206, 147, 198, 0.14);
+  --tone-orchid-border:   rgba(206, 147, 198, 0.38);
+  --tone-olive:           #AECB8D;
+  --tone-olive-bg:        rgba(174, 203, 141, 0.14);
+  --tone-olive-border:    rgba(174, 203, 141, 0.38);
   --tone-neutral:         #607769;  /* the "no write-up yet" segment */
 
   /* ---- shape ---- */
@@ -1640,6 +1640,28 @@ a.problem-seq-btn:focus-visible {
   gap: 0.5rem 1.75rem;
   margin-bottom: var(--space-4);
 }
+
+/* Per-venue result blocks on the summary page. */
+.venue-block {
+  margin: var(--space-5) 0;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface);
+}
+
+.venue-block + .venue-block { margin-top: var(--space-5); }
+
+.venue-title {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.venue-subnote { margin-top: var(--space-4); }
 
 .chart-legend-item {
   display: inline-flex;
