@@ -3,8 +3,8 @@
   "base_path": "data/llm_math_export/solution_progress",
   "counts": {
     "problems_with_progress": 154,
-    "solution_pdfs": 39,
-    "partial_progress_pdfs": 123
+    "solution_pdfs": 31,
+    "partial_progress_pdfs": 131
   },
   "problems": {
     "W2800787305_p0": {
@@ -160,15 +160,16 @@
       ]
     },
     "W3186360956_p0": {
-      "solutions": [],
-      "partial_progress": [
+      "solutions": [
         {
-          "kind": "partial_progress",
-          "label": "Partial progress #67 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W3186360956_p0/partial_progress/67.pdf",
-          "filename": "67.pdf"
+          "kind": "solution",
+          "label": "Solution #67 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W3186360956_p0/solutions/67.pdf",
+          "filename": "67.pdf",
+          "classification": "counterexample"
         }
-      ]
+      ],
+      "partial_progress": []
     },
     "W3207326278_p0": {
       "solutions": [],
@@ -193,16 +194,15 @@
       ]
     },
     "W3216294154_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #69 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W3216294154_p0/solutions/69.pdf",
-          "filename": "69.pdf",
-          "classification": "counterexample"
+          "kind": "partial_progress",
+          "label": "Partial progress #69 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W3216294154_p0/partial_progress/69.pdf",
+          "filename": "69.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W3217525437_p0": {
       "solutions": [],
@@ -251,16 +251,15 @@
       "partial_progress": []
     },
     "W4226226337_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #73 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4226226337_p0/solutions/73.pdf",
-          "filename": "73.pdf",
-          "classification": "characterization"
+          "kind": "partial_progress",
+          "label": "Partial progress #73 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4226226337_p0/partial_progress/73.pdf",
+          "filename": "73.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4226352527_p0": {
       "solutions": [
@@ -376,16 +375,15 @@
       ]
     },
     "W4377821221_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #78 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4377821221_p0/solutions/78.pdf",
-          "filename": "78.pdf",
-          "classification": "impossibility"
+          "kind": "partial_progress",
+          "label": "Partial progress #78 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4377821221_p0/partial_progress/78.pdf",
+          "filename": "78.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4377866503_p0": {
       "solutions": [],
@@ -1138,27 +1136,27 @@
       ]
     },
     "W4404566852_p0": {
-      "solutions": [
-        {
-          "kind": "solution",
-          "label": "Solution #138 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4404566852_p0/solutions/138.pdf",
-          "filename": "138.pdf",
-          "classification": "reduction"
-        }
-      ],
-      "partial_progress": []
-    },
-    "W4404717018_p0": {
       "solutions": [],
       "partial_progress": [
         {
           "kind": "partial_progress",
-          "label": "Partial progress #139 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4404717018_p0/partial_progress/139.pdf",
-          "filename": "139.pdf"
+          "label": "Partial progress #138 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4404566852_p0/partial_progress/138.pdf",
+          "filename": "138.pdf"
         }
       ]
+    },
+    "W4404717018_p0": {
+      "solutions": [
+        {
+          "kind": "solution",
+          "label": "Solution #139 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4404717018_p0/solutions/139.pdf",
+          "filename": "139.pdf",
+          "classification": "construction"
+        }
+      ],
+      "partial_progress": []
     },
     "W4405512051_p0": {
       "solutions": [],
@@ -1183,16 +1181,15 @@
       ]
     },
     "W4405639491_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #143 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4405639491_p0/solutions/143.pdf",
-          "filename": "143.pdf",
-          "classification": "analysis"
+          "kind": "partial_progress",
+          "label": "Partial progress #143 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4405639491_p0/partial_progress/143.pdf",
+          "filename": "143.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4407408247_p0": {
       "solutions": [],
@@ -1217,16 +1214,15 @@
       ]
     },
     "W4408446556_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #146 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4408446556_p0/solutions/146.pdf",
-          "filename": "146.pdf",
-          "classification": "counterexample"
+          "kind": "partial_progress",
+          "label": "Partial progress #146 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4408446556_p0/partial_progress/146.pdf",
+          "filename": "146.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4408830023_p0": {
       "solutions": [],
@@ -1328,16 +1324,15 @@
       ]
     },
     "W4410395976_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #10 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4410395976_p0/solutions/10.pdf",
-          "filename": "10.pdf",
-          "classification": "impossibility"
+          "kind": "partial_progress",
+          "label": "Partial progress #10 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4410395976_p0/partial_progress/10.pdf",
+          "filename": "10.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4411023035_p0": {
       "solutions": [],
@@ -1412,16 +1407,15 @@
       ]
     },
     "W4411879499_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #19 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4411879499_p0/solutions/19.pdf",
-          "filename": "19.pdf",
-          "classification": "analysis"
+          "kind": "partial_progress",
+          "label": "Partial progress #19 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4411879499_p0/partial_progress/19.pdf",
+          "filename": "19.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4411957271_p0": {
       "solutions": [
@@ -1470,16 +1464,15 @@
       ]
     },
     "W4413077228_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #24 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4413077228_p0/solutions/24.pdf",
-          "filename": "24.pdf",
-          "classification": "counterexample"
+          "kind": "partial_progress",
+          "label": "Partial progress #24 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4413077228_p0/partial_progress/24.pdf",
+          "filename": "24.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4413635748_p0": {
       "solutions": [],
@@ -1582,16 +1575,15 @@
       ]
     },
     "W4415178980_p0": {
-      "solutions": [
+      "solutions": [],
+      "partial_progress": [
         {
-          "kind": "solution",
-          "label": "Solution #33 (PDF)",
-          "path": "data/llm_math_export/solution_progress/W4415178980_p0/solutions/33.pdf",
-          "filename": "33.pdf",
-          "classification": "impossibility"
+          "kind": "partial_progress",
+          "label": "Partial progress #33 (PDF)",
+          "path": "data/llm_math_export/solution_progress/W4415178980_p0/partial_progress/33.pdf",
+          "filename": "33.pdf"
         }
-      ],
-      "partial_progress": []
+      ]
     },
     "W4416295153_p0": {
       "solutions": [],
