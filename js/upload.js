@@ -1,15 +1,11 @@
 /**
- * Upload page scaffold: login UI + PDF intake shell.
+ * Upload page: login + PDF intake + extract jobs.
  *
- * Talks to SITE_CONFIG.uploadApiBaseUrl when set:
- *   POST {base}/auth/login   {username, password} → {user, token?}
- *   POST {base}/auth/logout
- *   GET  {base}/auth/me
- *   POST {base}/api/uploads  multipart file
- *   GET  {base}/api/uploads
- *
- * With an empty uploadApiBaseUrl, the UI stays interactive but API calls
- * are blocked with a clear scaffold message (no fake local auth).
+ * Talks to SITE_CONFIG.uploadApiBaseUrl:
+ *   POST {base}/auth/login
+ *   POST/GET {base}/api/uploads
+ *   GET  {base}/api/uploads/{id}/file
+ *   POST {base}/api/uploads/{id}/jobs  {kind:"extract"}
  */
 (function () {
   "use strict";
@@ -17,6 +13,7 @@
   const SESSION_KEY = "opor_upload_session_v1";
   const config = window.SITE_CONFIG || {};
   const apiBase = String(config.uploadApiBaseUrl || "").replace(/\/$/, "");
+  let pollTimer = null;
 
   const els = {
     banner: document.getElementById("upload-status-banner"),
@@ -116,7 +113,6 @@
     setError(els.uploadError, "");
   }
 
-  /** ISO stamps are for the API, not the reader; fall back to the raw string. */
   function formatUploadDate(value) {
     const raw = String(value || "").trim();
     if (!raw) return "";
@@ -128,56 +124,182 @@
   function statusPill(status) {
     const pill = document.createElement("span");
     pill.className = "upload-status-pill";
-    const key = status.toLowerCase();
-    if (key.startsWith("review")) {
+    const key = String(status || "").toLowerCase();
+    if (key === "extracted" || key === "done" || key.startsWith("review")) {
       pill.classList.add("is-reviewed");
-    } else if (key.startsWith("pending") || key.startsWith("queue") || key.startsWith("process")) {
+    } else if (
+      key === "queued" ||
+      key === "running" ||
+      key.startsWith("pending") ||
+      key.startsWith("process")
+    ) {
       pill.classList.add("is-pending");
     }
     pill.textContent = status;
     return pill;
   }
 
-  function renderUploads(items) {
+  function latestJob(item) {
+    const jobs = Array.isArray(item.jobs) ? item.jobs : [];
+    return jobs.length ? jobs[0] : null;
+  }
+
+  function hasActiveJob(items) {
+    return (items || []).some((item) => {
+      const job = latestJob(item);
+      return job && (job.status === "queued" || job.status === "running");
+    });
+  }
+
+  function downloadHref(uploadId) {
+    return `${apiBase}/api/uploads/${uploadId}/file`;
+  }
+
+  async function downloadUpload(uploadId, session) {
+    const res = await fetch(downloadHref(uploadId), {
+      headers: authHeaders(session),
+      credentials: "include",
+    });
+    if (!res.ok) {
+      throw new Error(`Download failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `upload-${uploadId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function startExtract(uploadId, session, button) {
+    setError(els.uploadError, "");
+    if (button) button.disabled = true;
+    try {
+      await apiFetch(
+        `/api/uploads/${uploadId}/jobs`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "extract" }),
+        },
+        session
+      );
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.uploadError, err.message);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function renderUploads(items, session) {
     const list = Array.isArray(items) ? items : [];
     els.uploadList.innerHTML = "";
     if (!list.length) {
       els.uploadEmpty.hidden = false;
       els.uploadList.hidden = true;
+      stopPolling();
       return;
     }
     els.uploadEmpty.hidden = true;
     els.uploadList.hidden = false;
+
     for (const item of list) {
       const li = document.createElement("li");
       li.className = "upload-list-item";
+
       const name = document.createElement("span");
-      name.textContent = item.filename || item.name || "upload.pdf";
+      const kind = item.kind || "source";
+      const label = item.filename || item.name || "upload.pdf";
+      name.textContent = kind === "extraction" ? `${label} (extracted)` : label;
+
       const meta = document.createElement("span");
       meta.className = "upload-list-meta";
-      meta.textContent = formatUploadDate(item.uploaded_at || item.created_at || "");
-      const status = String(item.status || "received").trim() || "received";
+      const job = latestJob(item);
+      const bits = [formatUploadDate(item.uploaded_at || item.created_at || "")];
+      if (job) {
+        bits.push(`extract: ${job.status}`);
+        if (job.error_message) bits.push(String(job.error_message).slice(0, 80));
+      }
+      meta.textContent = bits.filter(Boolean).join(" · ");
+
+      let status = String(item.status || "received").trim() || "received";
+      if (kind === "source" && job) status = job.status;
       li.appendChild(name);
       li.appendChild(meta);
       li.appendChild(statusPill(status));
+
+      const actions = document.createElement("div");
+      actions.className = "upload-list-actions";
+
+      const dl = document.createElement("button");
+      dl.type = "button";
+      dl.className = "upload-btn upload-btn-secondary";
+      dl.textContent = "Download";
+      dl.addEventListener("click", async () => {
+        try {
+          await downloadUpload(item.id, session);
+        } catch (err) {
+          setError(els.uploadError, err.message);
+        }
+      });
+      actions.appendChild(dl);
+
+      if (kind === "source") {
+        const extractBtn = document.createElement("button");
+        extractBtn.type = "button";
+        extractBtn.className = "upload-btn";
+        const active = job && (job.status === "queued" || job.status === "running");
+        extractBtn.textContent = active ? "Extracting…" : "Extract";
+        extractBtn.disabled = Boolean(active);
+        extractBtn.addEventListener("click", () => startExtract(item.id, session, extractBtn));
+        actions.appendChild(extractBtn);
+      }
+
+      li.appendChild(actions);
       els.uploadList.appendChild(li);
+    }
+
+    if (hasActiveJob(list)) {
+      startPolling(session);
+    } else {
+      stopPolling();
     }
   }
 
-  async function refreshUploads(session) {
+  function stopPolling() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  function startPolling(session) {
+    if (pollTimer) return;
+    pollTimer = setInterval(() => {
+      refreshUploads(session, true);
+    }, 5000);
+  }
+
+  async function refreshUploads(session, quiet) {
     if (!apiConfigured()) {
-      renderUploads([]);
+      renderUploads([], session);
       return;
     }
     try {
       const data = await apiFetch("/api/uploads", { method: "GET" }, session);
-      renderUploads(data.items || data.uploads || data || []);
+      renderUploads(data.items || data.uploads || data || [], session);
+      if (!quiet) setError(els.uploadError, "");
     } catch (err) {
       if (err.status === 401) {
         saveSession(null);
         renderSession(null);
+        stopPolling();
       }
-      setError(els.uploadError, err.message);
+      if (!quiet) setError(els.uploadError, err.message);
     }
   }
 
@@ -220,6 +342,7 @@
   async function handleLogout() {
     const session = loadSession();
     setError(els.uploadError, "");
+    stopPolling();
     try {
       if (apiConfigured()) {
         await apiFetch("/auth/logout", { method: "POST" }, session);
@@ -254,7 +377,6 @@
         {
           method: "POST",
           body,
-          // Let the browser set multipart boundary; do not force JSON headers.
           headers: session.token ? { Authorization: `Bearer ${session.token}` } : {},
         },
         session

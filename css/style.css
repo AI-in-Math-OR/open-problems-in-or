@@ -2136,7 +2136,7 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 
 .upload-list-item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
   gap: 0.9rem;
   padding: 0.8rem 0.75rem;
@@ -2146,6 +2146,17 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 }
 .upload-list-item:hover { background: var(--color-surface-raised); }
 .upload-list-item:last-child { border-bottom: none; }
+
+.upload-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+.upload-list-actions .upload-btn {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+}
 
 .upload-list-meta {
   font-family: var(--font-mono);

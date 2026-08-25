@@ -23,6 +23,8 @@ DB_PATH = DATA_DIR / "upload_api.sqlite3"
 SESSION_SECRET = os.getenv("SESSION_SECRET", "").strip() or "dev-insecure-session-secret"
 SEED_USERNAME = os.getenv("UPLOAD_SEED_USERNAME", "pete").strip() or "pete"
 SEED_PASSWORD = os.getenv("UPLOAD_SEED_PASSWORD", "").strip()
+# Shared secret for the llm-math Railway worker (Bearer token). Optional locally.
+WORKER_API_TOKEN = os.getenv("WORKER_API_TOKEN", "").strip()
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.getenv(

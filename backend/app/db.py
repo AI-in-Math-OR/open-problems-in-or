@@ -1,4 +1,4 @@
-"""SQLite helpers for users and uploads."""
+"""SQLite helpers for users, uploads, and extract jobs."""
 
 from __future__ import annotations
 
@@ -36,6 +36,12 @@ def db() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, typedef: str) -> None:
+    cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {typedef}")
+
+
 def init_db() -> None:
     with db() as conn:
         conn.executescript(
@@ -61,8 +67,25 @@ def init_db() -> None:
             );
 
             CREATE INDEX IF NOT EXISTS idx_uploads_user_id ON uploads(user_id);
+
+            CREATE TABLE IF NOT EXISTS jobs (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              upload_id INTEGER NOT NULL REFERENCES uploads(id) ON DELETE CASCADE,
+              kind TEXT NOT NULL DEFAULT 'extract',
+              status TEXT NOT NULL DEFAULT 'queued',
+              error_message TEXT,
+              result_upload_id INTEGER REFERENCES uploads(id) ON DELETE SET NULL,
+              created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+              started_at TEXT,
+              finished_at TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+            CREATE INDEX IF NOT EXISTS idx_jobs_upload_id ON jobs(upload_id);
             """
         )
+        _ensure_column(conn, "uploads", "parent_upload_id", "INTEGER REFERENCES uploads(id)")
+        _ensure_column(conn, "uploads", "kind", "TEXT NOT NULL DEFAULT 'source'")
 
 
 def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
@@ -106,15 +129,28 @@ def insert_upload(
     size_bytes: int,
     sha256: str,
     status: str = "received",
+    parent_upload_id: Optional[int] = None,
+    kind: str = "source",
 ) -> Dict[str, Any]:
     with db() as conn:
         cur = conn.execute(
             """
             INSERT INTO uploads (
-              user_id, filename, stored_name, content_type, size_bytes, sha256, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+              user_id, filename, stored_name, content_type, size_bytes, sha256,
+              status, parent_upload_id, kind
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (user_id, filename, stored_name, content_type, size_bytes, sha256, status),
+            (
+                user_id,
+                filename,
+                stored_name,
+                content_type,
+                size_bytes,
+                sha256,
+                status,
+                parent_upload_id,
+                kind,
+            ),
         )
         upload_id = int(cur.lastrowid)
         row = conn.execute("SELECT * FROM uploads WHERE id = ?", (upload_id,)).fetchone()
@@ -125,7 +161,8 @@ def list_uploads_for_user(user_id: int, *, limit: int = 50) -> List[Dict[str, An
     with db() as conn:
         rows = conn.execute(
             """
-            SELECT id, filename, size_bytes, status, uploaded_at, sha256
+            SELECT id, filename, size_bytes, status, uploaded_at, sha256,
+                   parent_upload_id, kind
             FROM uploads
             WHERE user_id = ?
             ORDER BY id DESC
@@ -136,5 +173,129 @@ def list_uploads_for_user(user_id: int, *, limit: int = 50) -> List[Dict[str, An
     return [dict(row) for row in rows]
 
 
+def get_upload_by_id(upload_id: int) -> Optional[Dict[str, Any]]:
+    with db() as conn:
+        row = conn.execute("SELECT * FROM uploads WHERE id = ?", (upload_id,)).fetchone()
+    return dict(row) if row else None
+
+
 def storage_path(stored_name: str) -> Path:
     return config.UPLOAD_DIR / stored_name
+
+
+def job_public(row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "id": row["id"],
+        "upload_id": row["upload_id"],
+        "kind": row["kind"],
+        "status": row["status"],
+        "error_message": row.get("error_message"),
+        "result_upload_id": row.get("result_upload_id"),
+        "created_at": row["created_at"],
+        "started_at": row.get("started_at"),
+        "finished_at": row.get("finished_at"),
+    }
+
+
+def create_job(*, upload_id: int, kind: str = "extract") -> Dict[str, Any]:
+    with db() as conn:
+        existing = conn.execute(
+            """
+            SELECT * FROM jobs
+            WHERE upload_id = ? AND kind = ? AND status IN ('queued', 'running')
+            ORDER BY id DESC LIMIT 1
+            """,
+            (upload_id, kind),
+        ).fetchone()
+        if existing:
+            return dict(existing)
+        cur = conn.execute(
+            "INSERT INTO jobs (upload_id, kind, status) VALUES (?, ?, 'queued')",
+            (upload_id, kind),
+        )
+        job_id = int(cur.lastrowid)
+        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    return dict(row)
+
+
+def get_job_by_id(job_id: int) -> Optional[Dict[str, Any]]:
+    with db() as conn:
+        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def list_jobs_for_upload(upload_id: int, *, limit: int = 20) -> List[Dict[str, Any]]:
+    with db() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM jobs
+            WHERE upload_id = ?
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (upload_id, limit),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def claim_next_job(*, kind: str = "extract") -> Optional[Dict[str, Any]]:
+    with db() as conn:
+        row = conn.execute(
+            """
+            SELECT * FROM jobs
+            WHERE status = 'queued' AND kind = ?
+            ORDER BY id ASC
+            LIMIT 1
+            """,
+            (kind,),
+        ).fetchone()
+        if not row:
+            return None
+        job_id = int(row["id"])
+        conn.execute(
+            """
+            UPDATE jobs
+            SET status = 'running',
+                started_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+                error_message = NULL
+            WHERE id = ? AND status = 'queued'
+            """,
+            (job_id,),
+        )
+        claimed = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+        if not claimed or claimed["status"] != "running":
+            return None
+        return dict(claimed)
+
+
+def mark_job_done(*, job_id: int, result_upload_id: Optional[int] = None) -> Dict[str, Any]:
+    with db() as conn:
+        conn.execute(
+            """
+            UPDATE jobs
+            SET status = 'done',
+                result_upload_id = ?,
+                finished_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+                error_message = NULL
+            WHERE id = ?
+            """,
+            (result_upload_id, job_id),
+        )
+        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    return dict(row)
+
+
+def mark_job_failed(*, job_id: int, error_message: str) -> Dict[str, Any]:
+    with db() as conn:
+        conn.execute(
+            """
+            UPDATE jobs
+            SET status = 'failed',
+                error_message = ?,
+                finished_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+            WHERE id = ?
+            """,
+            (error_message[:2000], job_id),
+        )
+        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    return dict(row)
