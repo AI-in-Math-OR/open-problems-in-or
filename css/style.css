@@ -1414,10 +1414,6 @@ a.problem-seq-btn:focus-visible {
   max-width: 68ch;
 }
 
-/* Everything below the header on upload.html is centred at 46rem/30rem (§5.5a),
-   so the full-shell page header read as a second, unrelated grid. */
-body.page-upload .page-header { max-width: 46rem; margin-inline: auto; }
-
 .label-optional {
   font-size: 0.9em; letter-spacing: 0.04em; color: var(--color-text-muted);
   text-transform: none; font-style: italic;
@@ -1960,8 +1956,7 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 .upload-status-banner {
   font-family: var(--font-mono);
   letter-spacing: 0.02em;
-  max-width: 46rem;
-  margin-inline: auto;
+  max-width: none;
   margin-bottom: var(--space-5);
   display: flex;
   align-items: center;
@@ -1986,9 +1981,6 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   margin: 0 0 var(--space-5);
   box-shadow: var(--hairline-top), var(--shadow-1);
 }
-#login-panel  { max-width: 30rem; margin-inline: auto; }
-#login-panel .upload-form { max-width: none; }
-#upload-panel { max-width: 46rem; margin-inline: auto; }
 .upload-panel > * + .upload-panel-title { margin-top: 2.25rem; }
 
 .upload-panel-title {
@@ -2055,7 +2047,6 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 .upload-form-error:not(:empty)::before { content: "!"; font-family: var(--font-mono); font-weight: 500; }
 
 .upload-session-bar {
-  max-width: 46rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2079,7 +2070,6 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 
 .upload-dropzone {
   position: relative;
-  max-width: 46rem;
   border: 1px dashed var(--color-border-control);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
@@ -2130,7 +2120,6 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   list-style: none;
   margin: 1.25rem 0 0;
   padding: 0;
-  max-width: 46rem;
   border-top: none;
 }
 
@@ -2175,7 +2164,6 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   background: var(--tone-caution-bg); color: var(--tone-caution); }
 
 .upload-empty {
-  max-width: 46rem;
   margin: var(--space-4) 0 0;
   padding: 1.75rem 1.25rem;
   text-align: center;
