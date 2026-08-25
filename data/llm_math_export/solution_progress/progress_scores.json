@@ -29,13 +29,194 @@
       "batch_id": "ec_base_base_56sol_ni",
       "title": "Codex xhigh first pass",
       "solver_model": "gpt-5.6-sol"
+    },
+    {
+      "batch_id": "mor_writeup_audit",
+      "title": "post-hoc verifier audit of website write-ups",
+      "solver_model": "gpt-5.6-sol"
     }
   ],
   "counts": {
-    "problems_scored": 27,
-    "attempts": 99
+    "problems_scored": 156,
+    "attempts": 236
   },
   "problems": {
+    "W2800787305_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W2922533999_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W2947637889_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W2953466159_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W2965273013_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3080982993_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W3105682563_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3126339575_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3133568468_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3135365769_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3170420696_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W3171990983_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W3176856692_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3186360956_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
     "W3207326278_p0": {
       "attempts": [
         {
@@ -72,6 +253,54 @@
         }
       ]
     },
+    "W3214544052_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3216294154_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3217525437_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W3217714619_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
     "W4221157708_p0": {
       "attempts": [
         {
@@ -105,6 +334,30 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_iter1"
+        }
+      ]
+    },
+    "W4221167288_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4226226337_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -416,6 +669,42 @@
         }
       ]
     },
+    "W4309864804_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4376149422_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4377821221_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
     "W4377866503_p0": {
       "attempts": [
         {
@@ -449,6 +738,38 @@
           "progress_score": "2/3",
           "score": 2,
           "final_status": "repair_exhausted"
+        }
+      ]
+    },
+    "W4379383737_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4379646686_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -933,6 +1254,1302 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_iter1"
+        }
+      ]
+    },
+    "W4384342505_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4385350470_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4385873460_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4385878155_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4386289171_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4386547517_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4387578519_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4387615605_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4387617469_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4387738269_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4388047886_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4389193896_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4389224571_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4389224581_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4389389242_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4389673940_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4390588799_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4390763638_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4391111008_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4391315199_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4391601457_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4391954556_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4391994328_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4392646050_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4392748341_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4393233856_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4393423947_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4396581165_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4396625954_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4396690120_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4396905249_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4399151428_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4399497388_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4400196985_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4400454886_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4400583084_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4400583097_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4400685310_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4400732905_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4401117667_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4401514485_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4401542271_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4402128674_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4403279582_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4403453300_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4403683873_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4404109711_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4404530034_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4404566852_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4404717018_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4405512051_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4405624370_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4405639491_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4407408247_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4408054337_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4408446556_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4408830023_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4408928070_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4409316647_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4409528654_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4409800077_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4409922425_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4410154284_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4410155359_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4410233669_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4410395976_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411023035_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411234993_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411449955_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411674410_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411787576_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411801764_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411879499_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4411957271_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4411959281_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4412612512_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4412630514_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4413077228_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4413635748_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4413848299_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4414091988_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4414408152_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4414427837_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4414449781_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4414541699_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4414783466_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4415178980_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4416295153_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4416664990_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4416665164_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4417166251_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4417331274_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "0/3",
+          "score": 0,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W4417437095_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7114802374_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7118180028_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7119488906_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7125931785_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7126221168_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7127637708_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7128591806_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W7135205807_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7140189588_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7143448186_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
+        }
+      ]
+    },
+    "W7150839694_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
         }
       ]
     }
