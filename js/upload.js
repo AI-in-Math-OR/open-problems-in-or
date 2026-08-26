@@ -29,7 +29,20 @@
     uploadError: document.getElementById("upload-error"),
     uploadList: document.getElementById("upload-list"),
     uploadEmpty: document.getElementById("upload-empty"),
+    resultsList: document.getElementById("results-list"),
+    resultsEmpty: document.getElementById("results-empty"),
   };
+
+  function isSourceKind(kind) {
+    return !kind || kind === "source";
+  }
+
+  function kindLabel(kind) {
+    if (kind === "extraction") return "extraction";
+    if (kind === "literature_review") return "literature review";
+    if (kind === "solver_attempt" || kind === "solve_report") return "solver attempt";
+    return kind || "output";
+  }
 
   function apiConfigured() {
     return Boolean(apiBase);
@@ -195,39 +208,47 @@
     }
   }
 
-  function renderUploads(items, session) {
-    const list = Array.isArray(items) ? items : [];
-    els.uploadList.innerHTML = "";
-    if (!list.length) {
-      els.uploadEmpty.hidden = false;
-      els.uploadList.hidden = true;
-      stopPolling();
+  function renderList(targetList, emptyNode, items, session, mode, parentNames) {
+    if (!targetList || !emptyNode) return;
+    targetList.innerHTML = "";
+    if (!items.length) {
+      emptyNode.hidden = false;
+      targetList.hidden = true;
       return;
     }
-    els.uploadEmpty.hidden = true;
-    els.uploadList.hidden = false;
+    emptyNode.hidden = true;
+    targetList.hidden = false;
 
-    for (const item of list) {
+    for (const item of items) {
       const li = document.createElement("li");
       li.className = "upload-list-item";
 
-      const name = document.createElement("span");
       const kind = item.kind || "source";
+      const name = document.createElement("span");
       const label = item.filename || item.name || "upload.pdf";
-      name.textContent = kind === "extraction" ? `${label} (extracted)` : label;
+      if (mode === "results") {
+        name.textContent = `${label} (${kindLabel(kind)})`;
+      } else {
+        name.textContent = label;
+      }
 
       const meta = document.createElement("span");
       meta.className = "upload-list-meta";
       const job = latestJob(item);
       const bits = [formatUploadDate(item.uploaded_at || item.created_at || "")];
-      if (job) {
+      if (mode === "results" && item.parent_upload_id) {
+        const parentName = parentNames && parentNames[item.parent_upload_id];
+        bits.push(parentName ? `from ${parentName}` : `from upload #${item.parent_upload_id}`);
+      }
+      if (mode === "sources" && job) {
         bits.push(`extract: ${job.status}`);
         if (job.error_message) bits.push(String(job.error_message).slice(0, 80));
       }
       meta.textContent = bits.filter(Boolean).join(" · ");
 
       let status = String(item.status || "received").trim() || "received";
-      if (kind === "source" && job) status = job.status;
+      if (mode === "sources" && job) status = job.status;
+
       li.appendChild(name);
       li.appendChild(meta);
       li.appendChild(statusPill(status));
@@ -248,7 +269,7 @@
       });
       actions.appendChild(dl);
 
-      if (kind === "source") {
+      if (mode === "sources") {
         const extractBtn = document.createElement("button");
         extractBtn.type = "button";
         extractBtn.className = "upload-btn";
@@ -260,10 +281,23 @@
       }
 
       li.appendChild(actions);
-      els.uploadList.appendChild(li);
+      targetList.appendChild(li);
+    }
+  }
+
+  function renderUploads(items, session) {
+    const list = Array.isArray(items) ? items : [];
+    const sources = list.filter((item) => isSourceKind(item.kind));
+    const results = list.filter((item) => !isSourceKind(item.kind));
+    const parentNames = Object.create(null);
+    for (const src of sources) {
+      parentNames[src.id] = src.filename || src.name || `upload #${src.id}`;
     }
 
-    if (hasActiveJob(list)) {
+    renderList(els.uploadList, els.uploadEmpty, sources, session, "sources", parentNames);
+    renderList(els.resultsList, els.resultsEmpty, results, session, "results", parentNames);
+
+    if (hasActiveJob(sources)) {
       startPolling(session);
     } else {
       stopPolling();

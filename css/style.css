@@ -2231,6 +2231,14 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 .upload-status-pill.is-pending  { border-color: var(--tone-caution-border);
   background: var(--tone-caution-bg); color: var(--tone-caution); }
 
+.upload-section-lede {
+  max-width: 46rem;
+  margin: -0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .upload-empty {
   margin: var(--space-4) 0 0;
   padding: 1.75rem 1.25rem;
@@ -2240,8 +2248,20 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
-.upload-empty::after { content: "Uploads you submit will appear here after review.";
-  display: block; margin-top: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; }
+.upload-empty-sources::after {
+  content: "Drop a PDF above to add a source paper.";
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+.upload-empty-results::after {
+  content: "Extracted problem PDFs will appear here after a successful run.";
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
 
 /* ---------- Our Team (spec §6.2 + roster) ---------- */
 

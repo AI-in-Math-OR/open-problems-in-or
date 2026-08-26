@@ -81,9 +81,15 @@
       </div>
       <p id="upload-error" class="upload-form-error" role="alert" aria-live="polite"></p>
 
-      <h3 class="upload-panel-title">Recent uploads</h3>
-      <p id="upload-empty" class="upload-empty">No uploads yet.</p>
-      <ul id="upload-list" class="upload-list" hidden></ul>
+      <h3 id="uploaded-papers-title" class="upload-panel-title">Uploaded papers</h3>
+      <p class="upload-section-lede">Source PDFs you submit. Use Extract to run problem extraction on the Railway worker.</p>
+      <p id="upload-empty" class="upload-empty upload-empty-sources">No uploaded papers yet.</p>
+      <ul id="upload-list" class="upload-list" hidden aria-labelledby="uploaded-papers-title"></ul>
+
+      <h3 id="run-outputs-title" class="upload-panel-title">Run outputs</h3>
+      <p class="upload-section-lede">PDFs produced by extraction (and later pipeline stages). Separate from your uploaded sources.</p>
+      <p id="results-empty" class="upload-empty upload-empty-results">No run outputs yet.</p>
+      <ul id="results-list" class="upload-list" hidden aria-labelledby="run-outputs-title"></ul>
     </section>
   </main>
 
