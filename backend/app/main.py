@@ -13,6 +13,7 @@ from typing import Optional
 from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import File
+from fastapi import Form
 from fastapi import HTTPException
 from fastapi import UploadFile
 from fastapi import status
@@ -25,7 +26,7 @@ from . import auth
 from . import config
 from . import db as db_mod
 
-app = FastAPI(title="OR Open Problems Upload API", version="0.2.0")
+app = FastAPI(title="OR Open Problems Upload API", version="0.3.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.CORS_ORIGINS,
@@ -33,6 +34,20 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+ARTIFACT_KINDS = {
+    "extraction": {"upload_kind": "extraction", "status": "extracted", "prefix": "extracted_"},
+    "literature_review": {
+        "upload_kind": "literature_review",
+        "status": "reviewed",
+        "prefix": "lit_review_",
+    },
+    "solver_attempt": {
+        "upload_kind": "solver_attempt",
+        "status": "solved",
+        "prefix": "solver_",
+    },
+}
 
 
 class LoginRequest(BaseModel):
@@ -260,7 +275,11 @@ def list_upload_jobs(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
     _authorize_upload_access(row, user)
     jobs = db_mod.list_jobs_for_upload(upload_id)
-    return {"items": [db_mod.job_public(j) for j in jobs]}
+    return {
+        "items": [
+            db_mod.job_public_full(int(j["id"])) or db_mod.job_public(j) for j in jobs
+        ]
+    }
 
 
 @app.get("/api/jobs/{job_id}")
@@ -275,7 +294,7 @@ def get_job(
     if not upload:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
     _authorize_upload_access(upload, actor)
-    return db_mod.job_public(job)
+    return db_mod.job_public_full(job_id) or db_mod.job_public(job)
 
 
 @app.post("/api/jobs/claim")
@@ -293,7 +312,7 @@ def claim_job(
         return {"job": None}
     upload = db_mod.get_upload_by_id(int(job["upload_id"]))
     return {
-        "job": db_mod.job_public(job),
+        "job": db_mod.job_public_full(int(job["id"])) or db_mod.job_public(job),
         "upload": _upload_meta(upload) if upload else None,
     }
 
@@ -312,16 +331,24 @@ def fail_job(
     if job["status"] not in {"queued", "running"}:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
     error = str(body.get("error_message") or body.get("error") or "Worker failed").strip()
-    return db_mod.job_public(db_mod.mark_job_failed(job_id=job_id, error_message=error))
+    failed = db_mod.mark_job_failed(job_id=job_id, error_message=error)
+    return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
 
 
 @app.post("/api/jobs/{job_id}/result")
 async def upload_job_result(
     job_id: int,
     file: UploadFile = File(...),
+    artifact_kind: str = Form("extraction"),
+    finalize: bool = Form(True),
     worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
 ) -> Dict[str, Any]:
-    """Worker posts the extracted-problems PDF; stored as a new upload on the tab."""
+    """Worker posts a result PDF for a running job.
+
+    Multiple posts are allowed while the job is running. Set finalize=true
+    (default) to mark the job done after this artifact; pipeline workers will
+    post intermediate artifacts with finalize=false, then finalize on the last.
+    """
     if not worker.get("is_worker"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
     job = db_mod.get_job_by_id(job_id)
@@ -333,9 +360,16 @@ async def upload_job_result(
     if not source:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source upload missing.")
 
+    kind_key = (artifact_kind or "extraction").strip().lower()
+    kind_meta = ARTIFACT_KINDS.get(kind_key)
+    if not kind_meta:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"artifact_kind must be one of: {', '.join(sorted(ARTIFACT_KINDS))}",
+        )
+
     filename, data, sha256 = await _read_pdf_upload(file)
-    # Prefer a clear name on the Upload tab.
-    display = _safe_filename(f"extracted_{source['filename']}")
+    display = _safe_filename(f"{kind_meta['prefix']}{source['filename']}")
     if filename and filename != "upload.pdf":
         display = _safe_filename(filename)
     stored_name = f"{uuid.uuid4().hex}_{display}"
@@ -347,9 +381,20 @@ async def upload_job_result(
         content_type="application/pdf",
         size_bytes=len(data),
         sha256=sha256,
-        status="extracted",
+        status=kind_meta["status"],
         parent_upload_id=int(source["id"]),
-        kind="extraction",
+        kind=kind_meta["upload_kind"],
     )
-    done = db_mod.mark_job_done(job_id=job_id, result_upload_id=int(result["id"]))
-    return {"job": db_mod.job_public(done), "upload": _upload_meta(result)}
+    artifact = db_mod.add_job_artifact(
+        job_id=job_id,
+        upload_id=int(result["id"]),
+        artifact_kind=kind_key,
+    )
+    if finalize:
+        db_mod.mark_job_done(job_id=job_id, result_upload_id=int(result["id"]))
+    return {
+        "job": db_mod.job_public_full(job_id),
+        "upload": _upload_meta(result),
+        "artifact": artifact,
+        "finalized": bool(finalize),
+    }
