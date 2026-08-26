@@ -143,8 +143,10 @@
     const pill = document.createElement("span");
     pill.className = "upload-status-pill";
     const key = String(status || "").toLowerCase();
-    if (key === "extracted" || key === "done" || key.startsWith("review")) {
+    if (key === "extracted" || key === "done" || key === "solved" || key.startsWith("review")) {
       pill.classList.add("is-reviewed");
+    } else if (key === "failed" || key === "error") {
+      pill.classList.add("is-failed");
     } else if (
       key === "queued" ||
       key === "running" ||
@@ -167,6 +169,59 @@
       const job = latestJob(item);
       return job && (job.status === "queued" || job.status === "running");
     });
+  }
+
+  function stageStateLabel(state) {
+    const key = String(state || "pending").toLowerCase();
+    if (key === "done") return "Done";
+    if (key === "running") return "Running";
+    if (key === "failed") return "Failed";
+    if (key === "skipped") return "Skipped";
+    if (key === "queued") return "Queued";
+    return "Waiting";
+  }
+
+  function stagePill(label, state) {
+    const pill = document.createElement("span");
+    const key = String(state || "pending").toLowerCase();
+    pill.className = "upload-stage-pill";
+    if (key === "done") pill.classList.add("is-done");
+    else if (key === "running") pill.classList.add("is-running");
+    else if (key === "failed") pill.classList.add("is-failed");
+    else if (key === "skipped") pill.classList.add("is-skipped");
+    else pill.classList.add("is-waiting");
+    pill.textContent = `${label}: ${stageStateLabel(key)}`;
+    return pill;
+  }
+
+  function stageTrack(job) {
+    if (!job) return null;
+    const row = document.createElement("div");
+    row.className = "upload-stage-track";
+    row.setAttribute("aria-label", "Pipeline stage progress");
+
+    const kind = job.kind || "extract";
+    if (kind === "pipeline") {
+      const s = job.stages && typeof job.stages === "object" ? job.stages : {};
+      // Infer while queued before worker writes stages.
+      const extraction =
+        s.extraction || (job.status === "queued" ? "pending" : job.status === "failed" ? "failed" : "pending");
+      const review = s.literature_review || "pending";
+      const solver = s.solver || "pending";
+      row.appendChild(stagePill("Extract", extraction));
+      row.appendChild(stagePill("Review", review));
+      row.appendChild(stagePill("Solve", solver));
+      return row;
+    }
+
+    // Extract-only job: one stage mirroring job status.
+    let state = "pending";
+    if (job.status === "queued") state = "queued";
+    else if (job.status === "running") state = "running";
+    else if (job.status === "done") state = "done";
+    else if (job.status === "failed") state = "failed";
+    row.appendChild(stagePill("Extract", state));
+    return row;
   }
 
   function downloadHref(uploadId) {
@@ -245,16 +300,8 @@
   function stageSummary(job) {
     if (!job) return "";
     const kind = job.kind || "extract";
-    if (kind === "pipeline" && job.stages && typeof job.stages === "object") {
-      const s = job.stages;
-      const parts = [
-        `extract:${s.extraction || "?"}`,
-        `review:${s.literature_review || "?"}`,
-        `solve:${s.solver || "?"}`,
-      ];
-      return parts.join(" ");
-    }
-    return `${kind}: ${job.status}`;
+    if (kind === "pipeline") return "pipeline";
+    return kind;
   }
 
   function renderList(targetList, emptyNode, items, session, mode, parentNames) {
@@ -273,7 +320,11 @@
       li.className = "upload-list-item";
 
       const kind = item.kind || "source";
+      const main = document.createElement("div");
+      main.className = "upload-list-main";
+
       const name = document.createElement("span");
+      name.className = "upload-list-name";
       const label = item.filename || item.name || "upload.pdf";
       if (mode === "results") {
         name.textContent = `${label} (${kindLabel(kind)})`;
@@ -291,15 +342,21 @@
       }
       if (mode === "sources" && job) {
         bits.push(stageSummary(job));
-        if (job.error_message) bits.push(String(job.error_message).slice(0, 80));
+        if (job.error_message) bits.push(String(job.error_message).slice(0, 100));
       }
       meta.textContent = bits.filter(Boolean).join(" · ");
+
+      main.appendChild(name);
+      main.appendChild(meta);
+      if (mode === "sources" && job) {
+        const track = stageTrack(job);
+        if (track) main.appendChild(track);
+      }
 
       let status = String(item.status || "received").trim() || "received";
       if (mode === "sources" && job) status = job.status;
 
-      li.appendChild(name);
-      li.appendChild(meta);
+      li.appendChild(main);
       li.appendChild(statusPill(status));
 
       const actions = document.createElement("div");
@@ -373,7 +430,7 @@
     if (pollTimer) return;
     pollTimer = setInterval(() => {
       refreshUploads(session, true);
-    }, 5000);
+    }, 3000);
   }
 
   async function refreshUploads(session, quiet) {
