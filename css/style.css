@@ -2261,9 +2261,9 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   color: var(--tone-positive);
 }
 .upload-stage-pill.is-failed {
-  border-color: var(--tone-danger-border, #b42318);
-  background: var(--tone-danger-bg, #fef3f2);
-  color: var(--tone-danger, #b42318);
+  border-color: var(--tone-clay-border);
+  background: var(--tone-clay-bg);
+  color: var(--tone-clay);
 }
 .upload-stage-pill.is-skipped {
   border-style: dashed;
@@ -2280,9 +2280,9 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 .upload-status-pill.is-pending  { border-color: var(--tone-caution-border);
   background: var(--tone-caution-bg); color: var(--tone-caution); }
 .upload-status-pill.is-failed {
-  border-color: var(--tone-danger-border, #b42318);
-  background: var(--tone-danger-bg, #fef3f2);
-  color: var(--tone-danger, #b42318);
+  border-color: var(--tone-clay-border);
+  background: var(--tone-clay-bg);
+  color: var(--tone-clay);
 }
 
 .upload-section-lede {
