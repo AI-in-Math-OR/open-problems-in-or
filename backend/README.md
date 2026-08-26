@@ -102,6 +102,8 @@ Open the live Upload tab → log in → upload a small PDF → it should appear 
 | POST | `/api/jobs/{id}/stages` | worker | Update stage map mid-run |
 | POST | `/api/jobs/{id}/result` | worker | multipart PDF + form `artifact_kind` + `finalize` |
 | POST | `/api/jobs/{id}/fail` | worker | Mark job failed |
+| POST | `/api/jobs/{id}/cancel` | bearer | User cancels own queued/running job |
+| POST | `/api/jobs/reap-stale` | worker | Fail all `running` jobs (worker startup) |
 
 `POST /api/jobs/{id}/result` form fields:
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import uuid
 from typing import Any
@@ -349,6 +350,69 @@ def fail_job(
     error = str(body.get("error_message") or body.get("error") or "Worker failed").strip()
     failed = db_mod.mark_job_failed(job_id=job_id, error_message=error)
     return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
+
+
+@app.post("/api/jobs/{job_id}/cancel")
+def cancel_job(
+    job_id: int,
+    user: Dict[str, Any] = Depends(auth.require_user),
+) -> Dict[str, Any]:
+    """Logged-in user cancels their own queued/running job (e.g. after worker redeploy)."""
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    upload = db_mod.get_upload_by_id(int(job["upload_id"]))
+    if not upload:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(upload, user)
+    if job["status"] not in {"queued", "running"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
+    stages = None
+    if job.get("stages_json"):
+        try:
+            stages = json.loads(job["stages_json"])
+        except Exception:
+            stages = None
+    if isinstance(stages, dict):
+        for key, value in list(stages.items()):
+            if value in {"pending", "queued", "running"}:
+                stages[key] = "failed"
+        db_mod.update_job_stages(job_id=job_id, stages=stages)
+    failed = db_mod.mark_job_failed(
+        job_id=job_id,
+        error_message="Cancelled by user.",
+    )
+    return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
+
+
+@app.post("/api/jobs/reap-stale")
+def reap_stale_jobs(
+    worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    """Worker calls this on startup: fail any running jobs left by a prior container."""
+    if not worker.get("is_worker"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
+    running = db_mod.list_active_jobs(statuses=["running"])
+    reaped = []
+    for job in running:
+        jid = int(job["id"])
+        stages = None
+        if job.get("stages_json"):
+            try:
+                stages = json.loads(job["stages_json"])
+            except Exception:
+                stages = None
+        if isinstance(stages, dict):
+            for key, value in list(stages.items()):
+                if value in {"pending", "queued", "running"}:
+                    stages[key] = "failed"
+            db_mod.update_job_stages(job_id=jid, stages=stages)
+        db_mod.mark_job_failed(
+            job_id=jid,
+            error_message="Reaped: worker restarted while job was running.",
+        )
+        reaped.append(jid)
+    return {"reaped_job_ids": reaped, "count": len(reaped)}
 
 
 @app.post("/api/jobs/{job_id}/stages")

@@ -297,6 +297,18 @@
     }
   }
 
+  async function cancelJob(jobId, session, button) {
+    setError(els.uploadError, "");
+    if (button) button.disabled = true;
+    try {
+      await apiFetch(`/api/jobs/${jobId}/cancel`, { method: "POST" }, session);
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.uploadError, err.message);
+      if (button) button.disabled = false;
+    }
+  }
+
   function stageSummary(job) {
     if (!job) return "";
     const kind = job.kind || "extract";
@@ -393,6 +405,15 @@
         pipeBtn.disabled = Boolean(active);
         pipeBtn.addEventListener("click", () => startPipeline(item.id, session, pipeBtn));
         actions.appendChild(pipeBtn);
+
+        if (active && job.id != null) {
+          const cancelBtn = document.createElement("button");
+          cancelBtn.type = "button";
+          cancelBtn.className = "upload-btn upload-btn-secondary";
+          cancelBtn.textContent = "Cancel";
+          cancelBtn.addEventListener("click", () => cancelJob(job.id, session, cancelBtn));
+          actions.appendChild(cancelBtn);
+        }
       }
 
       li.appendChild(actions);

@@ -373,6 +373,21 @@ def mark_job_failed(*, job_id: int, error_message: str) -> Dict[str, Any]:
     return dict(row)
 
 
+def list_active_jobs(*, statuses: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    wanted = statuses or ["queued", "running"]
+    placeholders = ",".join("?" for _ in wanted)
+    with db() as conn:
+        rows = conn.execute(
+            f"""
+            SELECT * FROM jobs
+            WHERE status IN ({placeholders})
+            ORDER BY id ASC
+            """,
+            tuple(wanted),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
 def update_job_stages(*, job_id: int, stages: Dict[str, Any]) -> Dict[str, Any]:
     with db() as conn:
         conn.execute(

@@ -162,6 +162,31 @@ class JobArtifactsTests(unittest.TestCase):
             )
         self.assertEqual(ctx.exception.status_code, 400)
 
+    def test_cancel_and_reap_stale(self) -> None:
+        from fastapi import HTTPException
+
+        _src_id, job_id = self._source_and_running_job()
+        user = self.db_mod.get_user_by_username("pete")
+        assert user is not None
+        cancelled = self.main.cancel_job(job_id=job_id, user=dict(user))
+        self.assertEqual(cancelled["status"], "failed")
+        self.assertIn("Cancelled", cancelled.get("error_message") or "")
+
+        with self.assertRaises(HTTPException) as ctx:
+            self.main.cancel_job(job_id=job_id, user=dict(user))
+        self.assertEqual(ctx.exception.status_code, 409)
+
+        _src2, job2 = self._source_and_running_job()
+        reaped = self.main.reap_stale_jobs(worker=self.worker)
+        self.assertEqual(reaped["count"], 1)
+        self.assertEqual(reaped["reaped_job_ids"], [job2])
+        row = self.db_mod.get_job_by_id(job2)
+        assert row is not None
+        self.assertEqual(row["status"], "failed")
+        # no-op when nothing running
+        again = self.main.reap_stale_jobs(worker=self.worker)
+        self.assertEqual(again["count"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
