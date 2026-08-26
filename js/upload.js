@@ -33,12 +33,17 @@
     resultsEmpty: document.getElementById("results-empty"),
   };
 
-  function isSourceKind(kind) {
-    return !kind || kind === "source";
+  function isSourceKind(item) {
+    const kind = (item && item.kind) || "source";
+    if (kind !== "source") return false;
+    // Fallbacks if an older API row omitted kind.
+    if (item && item.parent_upload_id) return false;
+    if (String((item && item.status) || "").toLowerCase() === "extracted") return false;
+    return true;
   }
 
   function kindLabel(kind) {
-    if (kind === "extraction") return "extraction";
+    if (kind === "extraction" || kind === "extracted") return "extraction";
     if (kind === "literature_review") return "literature review";
     if (kind === "solver_attempt" || kind === "solve_report") return "solver attempt";
     return kind || "output";
@@ -287,8 +292,8 @@
 
   function renderUploads(items, session) {
     const list = Array.isArray(items) ? items : [];
-    const sources = list.filter((item) => isSourceKind(item.kind));
-    const results = list.filter((item) => !isSourceKind(item.kind));
+    const sources = list.filter((item) => isSourceKind(item));
+    const results = list.filter((item) => !isSourceKind(item));
     const parentNames = Object.create(null);
     for (const src of sources) {
       parentNames[src.id] = src.filename || src.name || `upload #${src.id}`;
