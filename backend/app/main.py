@@ -59,6 +59,10 @@ class CreateJobRequest(BaseModel):
     kind: str = Field(default="extract", min_length=1, max_length=64)
 
 
+class JobStagesRequest(BaseModel):
+    stages: Dict[str, Any] = Field(default_factory=dict)
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     db_mod.init_db()
@@ -197,7 +201,9 @@ def list_uploads(user: Dict[str, Any] = Depends(auth.require_user)) -> Dict[str,
         meta = _upload_meta(item)
         if (item.get("kind") or "source") == "source":
             jobs = db_mod.list_jobs_for_upload(int(item["id"]), limit=5)
-            meta["jobs"] = [db_mod.job_public(j) for j in jobs]
+            meta["jobs"] = [
+                db_mod.job_public_full(int(j["id"])) or db_mod.job_public(j) for j in jobs
+            ]
         else:
             meta["jobs"] = []
         out.append(meta)
@@ -247,10 +253,10 @@ def create_upload_job(
     user: Dict[str, Any] = Depends(auth.require_user),
 ) -> Dict[str, Any]:
     kind = (body.kind or "extract").strip().lower()
-    if kind != "extract":
+    if kind not in {"extract", "pipeline"}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only kind=extract is supported for now.",
+            detail="Only kind=extract or kind=pipeline is supported.",
         )
     row = db_mod.get_upload_by_id(upload_id)
     if not row:
@@ -259,10 +265,20 @@ def create_upload_job(
     if (row.get("kind") or "source") != "source":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Can only extract from source paper uploads.",
+            detail="Can only run jobs on source paper uploads.",
         )
     job = db_mod.create_job(upload_id=upload_id, kind=kind)
-    return db_mod.job_public(job)
+    if kind == "pipeline":
+        db_mod.update_job_stages(
+            job_id=int(job["id"]),
+            stages={
+                "extraction": "pending",
+                "literature_review": "pending",
+                "solver": "pending",
+            },
+        )
+        job = db_mod.get_job_by_id(int(job["id"])) or job
+    return db_mod.job_public_full(int(job["id"])) or db_mod.job_public(job)
 
 
 @app.get("/api/uploads/{upload_id}/jobs")
@@ -333,6 +349,23 @@ def fail_job(
     error = str(body.get("error_message") or body.get("error") or "Worker failed").strip()
     failed = db_mod.mark_job_failed(job_id=job_id, error_message=error)
     return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
+
+
+@app.post("/api/jobs/{job_id}/stages")
+def update_job_stages(
+    job_id: int,
+    body: JobStagesRequest,
+    worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    if not worker.get("is_worker"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    if job["status"] not in {"queued", "running", "done"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
+    db_mod.update_job_stages(job_id=job_id, stages=body.stages or {})
+    return db_mod.job_public_full(job_id) or db_mod.job_public(db_mod.get_job_by_id(job_id) or job)
 
 
 @app.post("/api/jobs/{job_id}/result")

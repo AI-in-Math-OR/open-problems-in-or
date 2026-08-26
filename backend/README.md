@@ -95,10 +95,11 @@ Open the live Upload tab → log in → upload a small PDF → it should appear 
 | GET | `/api/uploads` | bearer | List caller's uploads (includes recent jobs) |
 | GET | `/api/uploads/{id}` | bearer or worker | Upload metadata |
 | GET | `/api/uploads/{id}/file` | bearer or worker | Download stored PDF |
-| POST | `/api/uploads/{id}/jobs` | bearer | Queue `{kind:"extract"}` |
+| POST | `/api/uploads/{id}/jobs` | bearer | Queue `{kind:"extract"\|"pipeline"}` |
 | GET | `/api/uploads/{id}/jobs` | bearer | List jobs for upload (includes `artifacts`) |
-| GET | `/api/jobs/{id}` | bearer or worker | Job status + `artifacts[]` |
-| POST | `/api/jobs/claim` | worker | Claim next queued extract job |
+| GET | `/api/jobs/{id}` | bearer or worker | Job status + `artifacts[]` + `stages` |
+| POST | `/api/jobs/claim` | worker | Claim next queued job (`?kind=extract\|pipeline`) |
+| POST | `/api/jobs/{id}/stages` | worker | Update stage map mid-run |
 | POST | `/api/jobs/{id}/result` | worker | multipart PDF + form `artifact_kind` + `finalize` |
 | POST | `/api/jobs/{id}/fail` | worker | Mark job failed |
 

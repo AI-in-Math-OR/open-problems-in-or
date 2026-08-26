@@ -267,10 +267,10 @@ def create_job(*, upload_id: int, kind: str = "extract") -> Dict[str, Any]:
         existing = conn.execute(
             """
             SELECT * FROM jobs
-            WHERE upload_id = ? AND kind = ? AND status IN ('queued', 'running')
+            WHERE upload_id = ? AND status IN ('queued', 'running')
             ORDER BY id DESC LIMIT 1
             """,
-            (upload_id, kind),
+            (upload_id,),
         ).fetchone()
         if existing:
             return dict(existing)
@@ -368,6 +368,16 @@ def mark_job_failed(*, job_id: int, error_message: str) -> Dict[str, Any]:
             WHERE id = ?
             """,
             (error_message[:2000], job_id),
+        )
+        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    return dict(row)
+
+
+def update_job_stages(*, job_id: int, stages: Dict[str, Any]) -> Dict[str, Any]:
+    with db() as conn:
+        conn.execute(
+            "UPDATE jobs SET stages_json = ? WHERE id = ?",
+            (json.dumps(stages), job_id),
         )
         row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
     return dict(row)

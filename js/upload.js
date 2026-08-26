@@ -213,6 +213,50 @@
     }
   }
 
+  async function startPipeline(uploadId, session, button) {
+    setError(els.uploadError, "");
+    const ok = window.confirm(
+      "Run the full pipeline on this paper?\n\n" +
+        "1) Extract open problem\n" +
+        "2) Literature review (web search)\n" +
+        "3) One-pass solve-base (OpenAI API, abridged)\n\n" +
+        "This can take a long time and incurs model cost."
+    );
+    if (!ok) return;
+    if (button) button.disabled = true;
+    try {
+      await apiFetch(
+        `/api/uploads/${uploadId}/jobs`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "pipeline" }),
+        },
+        session
+      );
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.uploadError, err.message);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function stageSummary(job) {
+    if (!job) return "";
+    const kind = job.kind || "extract";
+    if (kind === "pipeline" && job.stages && typeof job.stages === "object") {
+      const s = job.stages;
+      const parts = [
+        `extract:${s.extraction || "?"}`,
+        `review:${s.literature_review || "?"}`,
+        `solve:${s.solver || "?"}`,
+      ];
+      return parts.join(" ");
+    }
+    return `${kind}: ${job.status}`;
+  }
+
   function renderList(targetList, emptyNode, items, session, mode, parentNames) {
     if (!targetList || !emptyNode) return;
     targetList.innerHTML = "";
@@ -246,7 +290,7 @@
         bits.push(parentName ? `from ${parentName}` : `from upload #${item.parent_upload_id}`);
       }
       if (mode === "sources" && job) {
-        bits.push(`extract: ${job.status}`);
+        bits.push(stageSummary(job));
         if (job.error_message) bits.push(String(job.error_message).slice(0, 80));
       }
       meta.textContent = bits.filter(Boolean).join(" · ");
@@ -275,14 +319,23 @@
       actions.appendChild(dl);
 
       if (mode === "sources") {
+        const active = job && (job.status === "queued" || job.status === "running");
         const extractBtn = document.createElement("button");
         extractBtn.type = "button";
-        extractBtn.className = "upload-btn";
-        const active = job && (job.status === "queued" || job.status === "running");
-        extractBtn.textContent = active ? "Extracting…" : "Extract";
+        extractBtn.className = "upload-btn upload-btn-secondary";
+        extractBtn.textContent = active && job.kind === "extract" ? "Extracting…" : "Extract";
         extractBtn.disabled = Boolean(active);
         extractBtn.addEventListener("click", () => startExtract(item.id, session, extractBtn));
         actions.appendChild(extractBtn);
+
+        const pipeBtn = document.createElement("button");
+        pipeBtn.type = "button";
+        pipeBtn.className = "upload-btn";
+        pipeBtn.textContent =
+          active && job.kind === "pipeline" ? "Pipeline running…" : "Run pipeline";
+        pipeBtn.disabled = Boolean(active);
+        pipeBtn.addEventListener("click", () => startPipeline(item.id, session, pipeBtn));
+        actions.appendChild(pipeBtn);
       }
 
       li.appendChild(actions);
