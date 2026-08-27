@@ -70,7 +70,9 @@
     return window.resolveCategory(problem?.category, effectiveArea(problem));
   }
 
-  /** Joins each problem to its solution/partial write-ups and derives one outcome. */
+  /** Joins each problem to its solution/partial write-ups and derives one outcome.
+   *  A published solution dominates: the problem is "solved" even if a partial PDF
+   *  remains on the page, and those leftover partials are not counted below. */
   function buildDataset(exportPayload, progressPayload, scorePayload) {
     const progress = progressPayload?.problems ?? {};
     const scores = scorePayload?.problems ?? {};
@@ -182,7 +184,10 @@
     const partial = rows.filter((r) => r.outcome === "partial").length;
     const none = rows.filter((r) => r.outcome === "none").length;
     const solutionDocs = rows.reduce((sum, r) => sum + r.solutions.length, 0);
-    const partialDocs = rows.reduce((sum, r) => sum + r.partials.length, 0);
+    const partialDocs = rows.reduce(
+      (sum, r) => r.outcome === "solved" ? sum : sum + r.partials.length,
+      0,
+    );
 
     const venueCounts = new Map();
     rows.forEach((r) => venueCounts.set(r.journal, (venueCounts.get(r.journal) ?? 0) + 1));

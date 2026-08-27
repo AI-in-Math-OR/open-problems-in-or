@@ -343,7 +343,7 @@
         if (VIEW.attempt === "solution" && p.__attemptCounts.solutions === 0) {
           return false;
         }
-        if (VIEW.attempt === "partial" && p.__attemptCounts.partial === 0) {
+        if (VIEW.attempt === "partial" && (p.__attemptCounts.partial === 0 || p.__attemptCounts.solutions > 0)) {
           return false;
         }
         if (VIEW.attempt === "any" && p.__attemptCounts.total === 0) {
