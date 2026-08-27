@@ -29,7 +29,25 @@
     uploadError: document.getElementById("upload-error"),
     uploadList: document.getElementById("upload-list"),
     uploadEmpty: document.getElementById("upload-empty"),
+    resultsList: document.getElementById("results-list"),
+    resultsEmpty: document.getElementById("results-empty"),
   };
+
+  function isSourceKind(item) {
+    const kind = (item && item.kind) || "source";
+    if (kind !== "source") return false;
+    // Fallbacks if an older API row omitted kind.
+    if (item && item.parent_upload_id) return false;
+    if (String((item && item.status) || "").toLowerCase() === "extracted") return false;
+    return true;
+  }
+
+  function kindLabel(kind) {
+    if (kind === "extraction" || kind === "extracted") return "extraction";
+    if (kind === "literature_review") return "literature review";
+    if (kind === "solver_attempt" || kind === "solve_report") return "solver attempt";
+    return kind || "output";
+  }
 
   function apiConfigured() {
     return Boolean(apiBase);
@@ -125,8 +143,10 @@
     const pill = document.createElement("span");
     pill.className = "upload-status-pill";
     const key = String(status || "").toLowerCase();
-    if (key === "extracted" || key === "done" || key.startsWith("review")) {
+    if (key === "extracted" || key === "done" || key === "solved" || key.startsWith("review")) {
       pill.classList.add("is-reviewed");
+    } else if (key === "failed" || key === "error") {
+      pill.classList.add("is-failed");
     } else if (
       key === "queued" ||
       key === "running" ||
@@ -149,6 +169,59 @@
       const job = latestJob(item);
       return job && (job.status === "queued" || job.status === "running");
     });
+  }
+
+  function stageStateLabel(state) {
+    const key = String(state || "pending").toLowerCase();
+    if (key === "done") return "Done";
+    if (key === "running") return "Running";
+    if (key === "failed") return "Failed";
+    if (key === "skipped") return "Skipped";
+    if (key === "queued") return "Queued";
+    return "Waiting";
+  }
+
+  function stagePill(label, state) {
+    const pill = document.createElement("span");
+    const key = String(state || "pending").toLowerCase();
+    pill.className = "upload-stage-pill";
+    if (key === "done") pill.classList.add("is-done");
+    else if (key === "running") pill.classList.add("is-running");
+    else if (key === "failed") pill.classList.add("is-failed");
+    else if (key === "skipped") pill.classList.add("is-skipped");
+    else pill.classList.add("is-waiting");
+    pill.textContent = `${label}: ${stageStateLabel(key)}`;
+    return pill;
+  }
+
+  function stageTrack(job) {
+    if (!job) return null;
+    const row = document.createElement("div");
+    row.className = "upload-stage-track";
+    row.setAttribute("aria-label", "Pipeline stage progress");
+
+    const kind = job.kind || "extract";
+    if (kind === "pipeline") {
+      const s = job.stages && typeof job.stages === "object" ? job.stages : {};
+      // Infer while queued before worker writes stages.
+      const extraction =
+        s.extraction || (job.status === "queued" ? "pending" : job.status === "failed" ? "failed" : "pending");
+      const review = s.literature_review || "pending";
+      const solver = s.solver || "pending";
+      row.appendChild(stagePill("Extract", extraction));
+      row.appendChild(stagePill("Review", review));
+      row.appendChild(stagePill("Solve", solver));
+      return row;
+    }
+
+    // Extract-only job: one stage mirroring job status.
+    let state = "pending";
+    if (job.status === "queued") state = "queued";
+    else if (job.status === "running") state = "running";
+    else if (job.status === "done") state = "done";
+    else if (job.status === "failed") state = "failed";
+    row.appendChild(stagePill("Extract", state));
+    return row;
   }
 
   function downloadHref(uploadId) {
@@ -195,41 +268,107 @@
     }
   }
 
-  function renderUploads(items, session) {
-    const list = Array.isArray(items) ? items : [];
-    els.uploadList.innerHTML = "";
-    if (!list.length) {
-      els.uploadEmpty.hidden = false;
-      els.uploadList.hidden = true;
-      stopPolling();
+  async function startPipeline(uploadId, session, button) {
+    setError(els.uploadError, "");
+    const ok = window.confirm(
+      "Run the full pipeline on this paper?\n\n" +
+        "1) Extract open problem\n" +
+        "2) Literature review (web search)\n" +
+        "3) One-pass solve-base (OpenAI API, abridged)\n\n" +
+        "This can take a long time and incurs model cost."
+    );
+    if (!ok) return;
+    if (button) button.disabled = true;
+    try {
+      await apiFetch(
+        `/api/uploads/${uploadId}/jobs`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "pipeline" }),
+        },
+        session
+      );
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.uploadError, err.message);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function cancelJob(jobId, session, button) {
+    setError(els.uploadError, "");
+    if (button) button.disabled = true;
+    try {
+      await apiFetch(`/api/jobs/${jobId}/cancel`, { method: "POST" }, session);
+      await refreshUploads(session);
+    } catch (err) {
+      setError(els.uploadError, err.message);
+      if (button) button.disabled = false;
+    }
+  }
+
+  function stageSummary(job) {
+    if (!job) return "";
+    const kind = job.kind || "extract";
+    if (kind === "pipeline") return "pipeline";
+    return kind;
+  }
+
+  function renderList(targetList, emptyNode, items, session, mode, parentNames) {
+    if (!targetList || !emptyNode) return;
+    targetList.innerHTML = "";
+    if (!items.length) {
+      emptyNode.hidden = false;
+      targetList.hidden = true;
       return;
     }
-    els.uploadEmpty.hidden = true;
-    els.uploadList.hidden = false;
+    emptyNode.hidden = true;
+    targetList.hidden = false;
 
-    for (const item of list) {
+    for (const item of items) {
       const li = document.createElement("li");
       li.className = "upload-list-item";
 
-      const name = document.createElement("span");
       const kind = item.kind || "source";
+      const main = document.createElement("div");
+      main.className = "upload-list-main";
+
+      const name = document.createElement("span");
+      name.className = "upload-list-name";
       const label = item.filename || item.name || "upload.pdf";
-      name.textContent = kind === "extraction" ? `${label} (extracted)` : label;
+      if (mode === "results") {
+        name.textContent = `${label} (${kindLabel(kind)})`;
+      } else {
+        name.textContent = label;
+      }
 
       const meta = document.createElement("span");
       meta.className = "upload-list-meta";
       const job = latestJob(item);
       const bits = [formatUploadDate(item.uploaded_at || item.created_at || "")];
-      if (job) {
-        bits.push(`extract: ${job.status}`);
-        if (job.error_message) bits.push(String(job.error_message).slice(0, 80));
+      if (mode === "results" && item.parent_upload_id) {
+        const parentName = parentNames && parentNames[item.parent_upload_id];
+        bits.push(parentName ? `from ${parentName}` : `from upload #${item.parent_upload_id}`);
+      }
+      if (mode === "sources" && job) {
+        bits.push(stageSummary(job));
+        if (job.error_message) bits.push(String(job.error_message).slice(0, 100));
       }
       meta.textContent = bits.filter(Boolean).join(" · ");
 
+      main.appendChild(name);
+      main.appendChild(meta);
+      if (mode === "sources" && job) {
+        const track = stageTrack(job);
+        if (track) main.appendChild(track);
+      }
+
       let status = String(item.status || "received").trim() || "received";
-      if (kind === "source" && job) status = job.status;
-      li.appendChild(name);
-      li.appendChild(meta);
+      if (mode === "sources" && job) status = job.status;
+
+      li.appendChild(main);
       li.appendChild(statusPill(status));
 
       const actions = document.createElement("div");
@@ -248,22 +387,53 @@
       });
       actions.appendChild(dl);
 
-      if (kind === "source") {
+      if (mode === "sources") {
+        const active = job && (job.status === "queued" || job.status === "running");
         const extractBtn = document.createElement("button");
         extractBtn.type = "button";
-        extractBtn.className = "upload-btn";
-        const active = job && (job.status === "queued" || job.status === "running");
-        extractBtn.textContent = active ? "Extracting…" : "Extract";
+        extractBtn.className = "upload-btn upload-btn-secondary";
+        extractBtn.textContent = active && job.kind === "extract" ? "Extracting…" : "Extract";
         extractBtn.disabled = Boolean(active);
         extractBtn.addEventListener("click", () => startExtract(item.id, session, extractBtn));
         actions.appendChild(extractBtn);
+
+        const pipeBtn = document.createElement("button");
+        pipeBtn.type = "button";
+        pipeBtn.className = "upload-btn";
+        pipeBtn.textContent =
+          active && job.kind === "pipeline" ? "Pipeline running…" : "Run pipeline";
+        pipeBtn.disabled = Boolean(active);
+        pipeBtn.addEventListener("click", () => startPipeline(item.id, session, pipeBtn));
+        actions.appendChild(pipeBtn);
+
+        if (active && job.id != null) {
+          const cancelBtn = document.createElement("button");
+          cancelBtn.type = "button";
+          cancelBtn.className = "upload-btn upload-btn-secondary";
+          cancelBtn.textContent = "Cancel";
+          cancelBtn.addEventListener("click", () => cancelJob(job.id, session, cancelBtn));
+          actions.appendChild(cancelBtn);
+        }
       }
 
       li.appendChild(actions);
-      els.uploadList.appendChild(li);
+      targetList.appendChild(li);
+    }
+  }
+
+  function renderUploads(items, session) {
+    const list = Array.isArray(items) ? items : [];
+    const sources = list.filter((item) => isSourceKind(item));
+    const results = list.filter((item) => !isSourceKind(item));
+    const parentNames = Object.create(null);
+    for (const src of sources) {
+      parentNames[src.id] = src.filename || src.name || `upload #${src.id}`;
     }
 
-    if (hasActiveJob(list)) {
+    renderList(els.uploadList, els.uploadEmpty, sources, session, "sources", parentNames);
+    renderList(els.resultsList, els.resultsEmpty, results, session, "results", parentNames);
+
+    if (hasActiveJob(sources)) {
       startPolling(session);
     } else {
       stopPolling();
@@ -281,7 +451,7 @@
     if (pollTimer) return;
     pollTimer = setInterval(() => {
       refreshUploads(session, true);
-    }, 5000);
+    }, 3000);
   }
 
   async function refreshUploads(session, quiet) {

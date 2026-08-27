@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 import uuid
 from typing import Any
@@ -13,6 +14,7 @@ from typing import Optional
 from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import File
+from fastapi import Form
 from fastapi import HTTPException
 from fastapi import UploadFile
 from fastapi import status
@@ -25,7 +27,7 @@ from . import auth
 from . import config
 from . import db as db_mod
 
-app = FastAPI(title="OR Open Problems Upload API", version="0.2.0")
+app = FastAPI(title="OR Open Problems Upload API", version="0.3.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=config.CORS_ORIGINS,
@@ -33,6 +35,20 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+ARTIFACT_KINDS = {
+    "extraction": {"upload_kind": "extraction", "status": "extracted", "prefix": "extracted_"},
+    "literature_review": {
+        "upload_kind": "literature_review",
+        "status": "reviewed",
+        "prefix": "lit_review_",
+    },
+    "solver_attempt": {
+        "upload_kind": "solver_attempt",
+        "status": "solved",
+        "prefix": "solver_",
+    },
+}
 
 
 class LoginRequest(BaseModel):
@@ -42,6 +58,10 @@ class LoginRequest(BaseModel):
 
 class CreateJobRequest(BaseModel):
     kind: str = Field(default="extract", min_length=1, max_length=64)
+
+
+class JobStagesRequest(BaseModel):
+    stages: Dict[str, Any] = Field(default_factory=dict)
 
 
 @app.on_event("startup")
@@ -182,7 +202,9 @@ def list_uploads(user: Dict[str, Any] = Depends(auth.require_user)) -> Dict[str,
         meta = _upload_meta(item)
         if (item.get("kind") or "source") == "source":
             jobs = db_mod.list_jobs_for_upload(int(item["id"]), limit=5)
-            meta["jobs"] = [db_mod.job_public(j) for j in jobs]
+            meta["jobs"] = [
+                db_mod.job_public_full(int(j["id"])) or db_mod.job_public(j) for j in jobs
+            ]
         else:
             meta["jobs"] = []
         out.append(meta)
@@ -232,10 +254,10 @@ def create_upload_job(
     user: Dict[str, Any] = Depends(auth.require_user),
 ) -> Dict[str, Any]:
     kind = (body.kind or "extract").strip().lower()
-    if kind != "extract":
+    if kind not in {"extract", "pipeline"}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only kind=extract is supported for now.",
+            detail="Only kind=extract or kind=pipeline is supported.",
         )
     row = db_mod.get_upload_by_id(upload_id)
     if not row:
@@ -244,10 +266,20 @@ def create_upload_job(
     if (row.get("kind") or "source") != "source":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Can only extract from source paper uploads.",
+            detail="Can only run jobs on source paper uploads.",
         )
     job = db_mod.create_job(upload_id=upload_id, kind=kind)
-    return db_mod.job_public(job)
+    if kind == "pipeline":
+        db_mod.update_job_stages(
+            job_id=int(job["id"]),
+            stages={
+                "extraction": "pending",
+                "literature_review": "pending",
+                "solver": "pending",
+            },
+        )
+        job = db_mod.get_job_by_id(int(job["id"])) or job
+    return db_mod.job_public_full(int(job["id"])) or db_mod.job_public(job)
 
 
 @app.get("/api/uploads/{upload_id}/jobs")
@@ -260,7 +292,11 @@ def list_upload_jobs(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
     _authorize_upload_access(row, user)
     jobs = db_mod.list_jobs_for_upload(upload_id)
-    return {"items": [db_mod.job_public(j) for j in jobs]}
+    return {
+        "items": [
+            db_mod.job_public_full(int(j["id"])) or db_mod.job_public(j) for j in jobs
+        ]
+    }
 
 
 @app.get("/api/jobs/{job_id}")
@@ -275,7 +311,7 @@ def get_job(
     if not upload:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
     _authorize_upload_access(upload, actor)
-    return db_mod.job_public(job)
+    return db_mod.job_public_full(job_id) or db_mod.job_public(job)
 
 
 @app.post("/api/jobs/claim")
@@ -293,7 +329,7 @@ def claim_job(
         return {"job": None}
     upload = db_mod.get_upload_by_id(int(job["upload_id"]))
     return {
-        "job": db_mod.job_public(job),
+        "job": db_mod.job_public_full(int(job["id"])) or db_mod.job_public(job),
         "upload": _upload_meta(upload) if upload else None,
     }
 
@@ -312,16 +348,104 @@ def fail_job(
     if job["status"] not in {"queued", "running"}:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
     error = str(body.get("error_message") or body.get("error") or "Worker failed").strip()
-    return db_mod.job_public(db_mod.mark_job_failed(job_id=job_id, error_message=error))
+    failed = db_mod.mark_job_failed(job_id=job_id, error_message=error)
+    return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
+
+
+@app.post("/api/jobs/{job_id}/cancel")
+def cancel_job(
+    job_id: int,
+    user: Dict[str, Any] = Depends(auth.require_user),
+) -> Dict[str, Any]:
+    """Logged-in user cancels their own queued/running job (e.g. after worker redeploy)."""
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    upload = db_mod.get_upload_by_id(int(job["upload_id"]))
+    if not upload:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload not found.")
+    _authorize_upload_access(upload, user)
+    if job["status"] not in {"queued", "running"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
+    stages = None
+    if job.get("stages_json"):
+        try:
+            stages = json.loads(job["stages_json"])
+        except Exception:
+            stages = None
+    if isinstance(stages, dict):
+        for key, value in list(stages.items()):
+            if value in {"pending", "queued", "running"}:
+                stages[key] = "failed"
+        db_mod.update_job_stages(job_id=job_id, stages=stages)
+    failed = db_mod.mark_job_failed(
+        job_id=job_id,
+        error_message="Cancelled by user.",
+    )
+    return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
+
+
+@app.post("/api/jobs/reap-stale")
+def reap_stale_jobs(
+    worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    """Worker calls this on startup: fail any running jobs left by a prior container."""
+    if not worker.get("is_worker"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
+    running = db_mod.list_active_jobs(statuses=["running"])
+    reaped = []
+    for job in running:
+        jid = int(job["id"])
+        stages = None
+        if job.get("stages_json"):
+            try:
+                stages = json.loads(job["stages_json"])
+            except Exception:
+                stages = None
+        if isinstance(stages, dict):
+            for key, value in list(stages.items()):
+                if value in {"pending", "queued", "running"}:
+                    stages[key] = "failed"
+            db_mod.update_job_stages(job_id=jid, stages=stages)
+        db_mod.mark_job_failed(
+            job_id=jid,
+            error_message="Reaped: worker restarted while job was running.",
+        )
+        reaped.append(jid)
+    return {"reaped_job_ids": reaped, "count": len(reaped)}
+
+
+@app.post("/api/jobs/{job_id}/stages")
+def update_job_stages(
+    job_id: int,
+    body: JobStagesRequest,
+    worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
+) -> Dict[str, Any]:
+    if not worker.get("is_worker"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
+    job = db_mod.get_job_by_id(job_id)
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found.")
+    if job["status"] not in {"queued", "running", "done"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
+    db_mod.update_job_stages(job_id=job_id, stages=body.stages or {})
+    return db_mod.job_public_full(job_id) or db_mod.job_public(db_mod.get_job_by_id(job_id) or job)
 
 
 @app.post("/api/jobs/{job_id}/result")
 async def upload_job_result(
     job_id: int,
     file: UploadFile = File(...),
+    artifact_kind: str = Form("extraction"),
+    finalize: bool = Form(True),
     worker: Dict[str, Any] = Depends(auth.require_user_or_worker),
 ) -> Dict[str, Any]:
-    """Worker posts the extracted-problems PDF; stored as a new upload on the tab."""
+    """Worker posts a result PDF for a running job.
+
+    Multiple posts are allowed while the job is running. Set finalize=true
+    (default) to mark the job done after this artifact; pipeline workers will
+    post intermediate artifacts with finalize=false, then finalize on the last.
+    """
     if not worker.get("is_worker"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Worker token required.")
     job = db_mod.get_job_by_id(job_id)
@@ -333,9 +457,16 @@ async def upload_job_result(
     if not source:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source upload missing.")
 
+    kind_key = (artifact_kind or "extraction").strip().lower()
+    kind_meta = ARTIFACT_KINDS.get(kind_key)
+    if not kind_meta:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"artifact_kind must be one of: {', '.join(sorted(ARTIFACT_KINDS))}",
+        )
+
     filename, data, sha256 = await _read_pdf_upload(file)
-    # Prefer a clear name on the Upload tab.
-    display = _safe_filename(f"extracted_{source['filename']}")
+    display = _safe_filename(f"{kind_meta['prefix']}{source['filename']}")
     if filename and filename != "upload.pdf":
         display = _safe_filename(filename)
     stored_name = f"{uuid.uuid4().hex}_{display}"
@@ -347,9 +478,20 @@ async def upload_job_result(
         content_type="application/pdf",
         size_bytes=len(data),
         sha256=sha256,
-        status="extracted",
+        status=kind_meta["status"],
         parent_upload_id=int(source["id"]),
-        kind="extraction",
+        kind=kind_meta["upload_kind"],
     )
-    done = db_mod.mark_job_done(job_id=job_id, result_upload_id=int(result["id"]))
-    return {"job": db_mod.job_public(done), "upload": _upload_meta(result)}
+    artifact = db_mod.add_job_artifact(
+        job_id=job_id,
+        upload_id=int(result["id"]),
+        artifact_kind=kind_key,
+    )
+    if finalize:
+        db_mod.mark_job_done(job_id=job_id, result_upload_id=int(result["id"]))
+    return {
+        "job": db_mod.job_public_full(job_id),
+        "upload": _upload_meta(result),
+        "artifact": artifact,
+        "finalized": bool(finalize),
+    }

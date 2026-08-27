@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -82,10 +83,21 @@ def init_db() -> None:
 
             CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
             CREATE INDEX IF NOT EXISTS idx_jobs_upload_id ON jobs(upload_id);
+
+            CREATE TABLE IF NOT EXISTS job_artifacts (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+              upload_id INTEGER NOT NULL REFERENCES uploads(id) ON DELETE CASCADE,
+              artifact_kind TEXT NOT NULL,
+              created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_job_artifacts_job_id ON job_artifacts(job_id);
             """
         )
         _ensure_column(conn, "uploads", "parent_upload_id", "INTEGER REFERENCES uploads(id)")
         _ensure_column(conn, "uploads", "kind", "TEXT NOT NULL DEFAULT 'source'")
+        _ensure_column(conn, "jobs", "stages_json", "TEXT")
 
 
 def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
@@ -183,8 +195,8 @@ def storage_path(stored_name: str) -> Path:
     return config.UPLOAD_DIR / stored_name
 
 
-def job_public(row: Dict[str, Any]) -> Dict[str, Any]:
-    return {
+def job_public(row: Dict[str, Any], *, artifacts: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+    out = {
         "id": row["id"],
         "upload_id": row["upload_id"],
         "kind": row["kind"],
@@ -195,6 +207,59 @@ def job_public(row: Dict[str, Any]) -> Dict[str, Any]:
         "started_at": row.get("started_at"),
         "finished_at": row.get("finished_at"),
     }
+    if artifacts is not None:
+        out["artifacts"] = artifacts
+    stages_raw = row.get("stages_json")
+    if stages_raw:
+        try:
+            out["stages"] = json.loads(stages_raw)
+        except Exception:
+            out["stages"] = None
+    return out
+
+
+def list_job_artifacts(job_id: int) -> List[Dict[str, Any]]:
+    with db() as conn:
+        rows = conn.execute(
+            """
+            SELECT ja.id, ja.job_id, ja.upload_id, ja.artifact_kind, ja.created_at,
+                   u.filename, u.kind AS upload_kind, u.status AS upload_status
+            FROM job_artifacts ja
+            JOIN uploads u ON u.id = ja.upload_id
+            WHERE ja.job_id = ?
+            ORDER BY ja.id ASC
+            """,
+            (job_id,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def add_job_artifact(*, job_id: int, upload_id: int, artifact_kind: str) -> Dict[str, Any]:
+    with db() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO job_artifacts (job_id, upload_id, artifact_kind)
+            VALUES (?, ?, ?)
+            """,
+            (job_id, upload_id, artifact_kind),
+        )
+        art_id = int(cur.lastrowid)
+        # Keep result_upload_id as the latest artifact for backwards compatibility.
+        conn.execute(
+            "UPDATE jobs SET result_upload_id = ? WHERE id = ?",
+            (upload_id, job_id),
+        )
+        row = conn.execute(
+            """
+            SELECT ja.id, ja.job_id, ja.upload_id, ja.artifact_kind, ja.created_at,
+                   u.filename, u.kind AS upload_kind, u.status AS upload_status
+            FROM job_artifacts ja
+            JOIN uploads u ON u.id = ja.upload_id
+            WHERE ja.id = ?
+            """,
+            (art_id,),
+        ).fetchone()
+    return dict(row)
 
 
 def create_job(*, upload_id: int, kind: str = "extract") -> Dict[str, Any]:
@@ -202,10 +267,10 @@ def create_job(*, upload_id: int, kind: str = "extract") -> Dict[str, Any]:
         existing = conn.execute(
             """
             SELECT * FROM jobs
-            WHERE upload_id = ? AND kind = ? AND status IN ('queued', 'running')
+            WHERE upload_id = ? AND status IN ('queued', 'running')
             ORDER BY id DESC LIMIT 1
             """,
-            (upload_id, kind),
+            (upload_id,),
         ).fetchone()
         if existing:
             return dict(existing)
@@ -222,6 +287,13 @@ def get_job_by_id(job_id: int) -> Optional[Dict[str, Any]]:
     with db() as conn:
         row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
     return dict(row) if row else None
+
+
+def job_public_full(job_id: int) -> Optional[Dict[str, Any]]:
+    job = get_job_by_id(job_id)
+    if not job:
+        return None
+    return job_public(job, artifacts=list_job_artifacts(job_id))
 
 
 def list_jobs_for_upload(upload_id: int, *, limit: int = 20) -> List[Dict[str, Any]]:
@@ -296,6 +368,31 @@ def mark_job_failed(*, job_id: int, error_message: str) -> Dict[str, Any]:
             WHERE id = ?
             """,
             (error_message[:2000], job_id),
+        )
+        row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    return dict(row)
+
+
+def list_active_jobs(*, statuses: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    wanted = statuses or ["queued", "running"]
+    placeholders = ",".join("?" for _ in wanted)
+    with db() as conn:
+        rows = conn.execute(
+            f"""
+            SELECT * FROM jobs
+            WHERE status IN ({placeholders})
+            ORDER BY id ASC
+            """,
+            tuple(wanted),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def update_job_stages(*, job_id: int, stages: Dict[str, Any]) -> Dict[str, Any]:
+    with db() as conn:
+        conn.execute(
+            "UPDATE jobs SET stages_json = ? WHERE id = ?",
+            (json.dumps(stages), job_id),
         )
         row = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
     return dict(row)

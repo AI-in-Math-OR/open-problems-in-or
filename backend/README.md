@@ -23,6 +23,16 @@ python -m http.server 8000
 
 Then open http://127.0.0.1:8000/upload.html
 
+## Tests
+
+Multi-artifact job result coverage (temp SQLite, no Railway):
+
+```bash
+cd backend
+source .venv/bin/activate
+python -m unittest tests.test_job_artifacts -v
+```
+
 ## Shared production (Railway)
 
 Anyone with the shared password uploads to **one** Railway volume (not each person's laptop).
@@ -85,12 +95,25 @@ Open the live Upload tab → log in → upload a small PDF → it should appear 
 | GET | `/api/uploads` | bearer | List caller's uploads (includes recent jobs) |
 | GET | `/api/uploads/{id}` | bearer or worker | Upload metadata |
 | GET | `/api/uploads/{id}/file` | bearer or worker | Download stored PDF |
-| POST | `/api/uploads/{id}/jobs` | bearer | Queue `{kind:"extract"}` |
-| GET | `/api/uploads/{id}/jobs` | bearer | List jobs for upload |
-| GET | `/api/jobs/{id}` | bearer or worker | Job status |
-| POST | `/api/jobs/claim` | worker | Claim next queued extract job |
-| POST | `/api/jobs/{id}/result` | worker | multipart extracted PDF |
+| POST | `/api/uploads/{id}/jobs` | bearer | Queue `{kind:"extract"\|"pipeline"}` |
+| GET | `/api/uploads/{id}/jobs` | bearer | List jobs for upload (includes `artifacts`) |
+| GET | `/api/jobs/{id}` | bearer or worker | Job status + `artifacts[]` + `stages` |
+| POST | `/api/jobs/claim` | worker | Claim next queued job (`?kind=extract\|pipeline`) |
+| POST | `/api/jobs/{id}/stages` | worker | Update stage map mid-run |
+| POST | `/api/jobs/{id}/result` | worker | multipart PDF + form `artifact_kind` + `finalize` |
 | POST | `/api/jobs/{id}/fail` | worker | Mark job failed |
+| POST | `/api/jobs/{id}/cancel` | bearer | User cancels own queued/running job |
+| POST | `/api/jobs/reap-stale` | worker | Fail all `running` jobs (worker startup) |
+
+`POST /api/jobs/{id}/result` form fields:
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `file` | required | PDF bytes |
+| `artifact_kind` | `extraction` | `extraction` \| `literature_review` \| `solver_attempt` |
+| `finalize` | `true` | Mark job `done` after this artifact. Pipeline workers post intermediate results with `finalize=false`, then finalize on the last PDF. |
+
+Each result is stored as an upload (`kind` matching the artifact) linked via `parent_upload_id` and listed on the job under `artifacts`.
 
 Worker auth: set the same `WORKER_API_TOKEN` on this API and on the `llm-math` Railway service. The worker calls `GET /api/uploads/{id}/file` with `Authorization: Bearer <WORKER_API_TOKEN>` over Railway private networking (`UPLOAD_API_BASE_URL`). Volumes are **not** shared between services.
 

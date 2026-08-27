@@ -2193,7 +2193,7 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 
 .upload-list-item {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 0.9rem;
   padding: 0.8rem 0.75rem;
@@ -2203,6 +2203,16 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
 }
 .upload-list-item:hover { background: var(--color-surface-raised); }
 .upload-list-item:last-child { border-bottom: none; }
+
+.upload-list-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.upload-list-name {
+  overflow-wrap: anywhere;
+}
 
 .upload-list-actions {
   display: flex;
@@ -2221,6 +2231,45 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   color: var(--color-text-muted);
 }
 
+.upload-stage-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+}
+.upload-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.12rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 500;
+  border: 1px solid var(--color-rule);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+.upload-stage-pill.is-waiting { opacity: 0.85; }
+.upload-stage-pill.is-running {
+  border-color: var(--tone-caution-border);
+  background: var(--tone-caution-bg);
+  color: var(--tone-caution);
+}
+.upload-stage-pill.is-done {
+  border-color: var(--tone-positive-border);
+  background: var(--tone-positive-bg);
+  color: var(--tone-positive);
+}
+.upload-stage-pill.is-failed {
+  border-color: var(--tone-clay-border);
+  background: var(--tone-clay-bg);
+  color: var(--tone-clay);
+}
+.upload-stage-pill.is-skipped {
+  border-style: dashed;
+  opacity: 0.75;
+}
+
 .upload-status-pill {
   display: inline-flex; align-items: center; border-radius: var(--radius-pill);
   padding: 0.14rem 0.6rem; font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500;
@@ -2230,6 +2279,19 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   background: var(--tone-positive-bg); color: var(--tone-positive); }
 .upload-status-pill.is-pending  { border-color: var(--tone-caution-border);
   background: var(--tone-caution-bg); color: var(--tone-caution); }
+.upload-status-pill.is-failed {
+  border-color: var(--tone-clay-border);
+  background: var(--tone-clay-bg);
+  color: var(--tone-clay);
+}
+
+.upload-section-lede {
+  max-width: 46rem;
+  margin: -0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
 
 .upload-empty {
   margin: var(--space-4) 0 0;
@@ -2240,8 +2302,20 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
-.upload-empty::after { content: "Uploads you submit will appear here after review.";
-  display: block; margin-top: 0.4rem; font-family: var(--font-mono); font-size: 0.7rem; }
+.upload-empty-sources::after {
+  content: "Drop a PDF above to add a source paper.";
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+.upload-empty-results::after {
+  content: "Extracted problem PDFs will appear here after a successful run.";
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
 
 /* ---------- Our Team (spec §6.2 + roster) ---------- */
 
