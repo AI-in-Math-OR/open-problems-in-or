@@ -187,6 +187,23 @@ class JobArtifactsTests(unittest.TestCase):
         again = self.main.reap_stale_jobs(worker=self.worker)
         self.assertEqual(again["count"], 0)
 
+    def test_fail_job_flips_active_stage_pills(self) -> None:
+        _src_id, job_id = self._source_and_running_job()
+        self.db_mod.update_job_stages(
+            job_id=job_id,
+            stages={"extraction": "done", "literature_review": "done", "solver": "running"},
+        )
+        failed = self.main.fail_job(
+            job_id=job_id,
+            body={"error_message": "boom"},
+            worker=self.worker,
+        )
+        self.assertEqual(failed["status"], "failed")
+        self.assertEqual(
+            failed["stages"],
+            {"extraction": "done", "literature_review": "done", "solver": "failed"},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -376,6 +376,22 @@ def fail_job(
     if job["status"] not in {"queued", "running"}:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Job is not active.")
     error = str(body.get("error_message") or body.get("error") or "Worker failed").strip()
+    # Flip any still-active stage pills to failed (parity with cancel/reap),
+    # so a failed job never keeps showing "Running" stages.
+    stages = None
+    if job.get("stages_json"):
+        try:
+            stages = json.loads(job["stages_json"])
+        except Exception:
+            stages = None
+    if isinstance(stages, dict):
+        changed = False
+        for key, value in list(stages.items()):
+            if value in {"pending", "queued", "running"}:
+                stages[key] = "failed"
+                changed = True
+        if changed:
+            db_mod.update_job_stages(job_id=job_id, stages=stages)
     failed = db_mod.mark_job_failed(job_id=job_id, error_message=error)
     return db_mod.job_public_full(job_id) or db_mod.job_public(failed)
 
