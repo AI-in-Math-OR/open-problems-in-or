@@ -2462,3 +2462,24 @@ main.is-failed :is(#kpi-grid, .bar-chart, #outcome-bar, #solution-type-bar):empt
     justify-items: start;
   }
 }
+
+/* Upload page: list headers with a Clear button (archive semantics). The
+   header row takes over the spacing, padding, and underline the bare
+   .upload-panel-title had, so the rule spans the full panel width (under the
+   button too) and the lede below keeps its original 0.65rem collapsed gap. */
+.upload-panel > * + .upload-list-header { margin-top: 2.25rem; }
+.upload-list-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 var(--space-4);
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+.upload-list-header .upload-panel-title {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.upload-clear-btn { font-size: 0.82rem; padding: 0.3rem 0.85rem; white-space: nowrap; }

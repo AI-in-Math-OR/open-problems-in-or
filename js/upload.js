@@ -31,6 +31,8 @@
     uploadEmpty: document.getElementById("upload-empty"),
     resultsList: document.getElementById("results-list"),
     resultsEmpty: document.getElementById("results-empty"),
+    clearUploadsBtn: document.getElementById("clear-uploads-btn"),
+    clearResultsBtn: document.getElementById("clear-results-btn"),
   };
 
   function isSourceKind(item) {
@@ -136,7 +138,7 @@
     if (!raw) return "";
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) return raw;
-    return date.toLocaleString(undefined, { dateStyle: "medium" });
+    return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "medium" });
   }
 
   function statusPill(status) {
@@ -309,6 +311,42 @@
     }
   }
 
+  async function clearList(scope, session, button) {
+    setError(els.uploadError, "");
+    const label = scope === "sources" ? "uploaded papers" : "run outputs";
+    const ok = window.confirm(
+      `Clear all ${label} from this list?\n\n` +
+        "They disappear from the page, but nothing is deleted on the server" +
+        (scope === "sources"
+          ? "; papers with an active job are kept."
+          : "; outputs of a run still in progress are kept.")
+    );
+    if (!ok) return;
+    if (button) button.disabled = true;
+    try {
+      const res = await apiFetch(
+        "/api/uploads/archive",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scope }),
+        },
+        session
+      );
+      await refreshUploads(session);
+      if (res && res.skipped_active) {
+        setError(
+          els.uploadError,
+          `Cleared ${res.archived}; kept ${res.skipped_active} with an active job.`
+        );
+      }
+    } catch (err) {
+      setError(els.uploadError, err.message);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
   function stageSummary(job) {
     if (!job) return "";
     const kind = job.kind || "extract";
@@ -432,6 +470,9 @@
 
     renderList(els.uploadList, els.uploadEmpty, sources, session, "sources", parentNames);
     renderList(els.resultsList, els.resultsEmpty, results, session, "results", parentNames);
+
+    if (els.clearUploadsBtn) els.clearUploadsBtn.hidden = !sources.length;
+    if (els.clearResultsBtn) els.clearResultsBtn.hidden = !results.length;
 
     if (hasActiveJob(sources)) {
       startPolling(session);
@@ -610,6 +651,16 @@
 
     els.loginForm.addEventListener("submit", handleLogin);
     els.logoutBtn.addEventListener("click", handleLogout);
+    if (els.clearUploadsBtn) {
+      els.clearUploadsBtn.addEventListener("click", () =>
+        clearList("sources", loadSession(), els.clearUploadsBtn)
+      );
+    }
+    if (els.clearResultsBtn) {
+      els.clearResultsBtn.addEventListener("click", () =>
+        clearList("results", loadSession(), els.clearResultsBtn)
+      );
+    }
     wireDropzone();
 
     if (session && apiConfigured()) {

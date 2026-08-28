@@ -64,6 +64,10 @@ class JobStagesRequest(BaseModel):
     stages: Dict[str, Any] = Field(default_factory=dict)
 
 
+class ArchiveUploadsRequest(BaseModel):
+    scope: str = Field(default="sources", min_length=1, max_length=32)
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     db_mod.init_db()
@@ -211,6 +215,26 @@ def list_uploads(user: Dict[str, Any] = Depends(auth.require_user)) -> Dict[str,
     return {"items": out}
 
 
+@app.post("/api/uploads/archive")
+def archive_uploads(
+    body: ArchiveUploadsRequest,
+    user: Dict[str, Any] = Depends(auth.require_user),
+) -> Dict[str, Any]:
+    """Clear the caller's Uploaded-papers or Run-outputs list.
+
+    Archives (hides) the rows; files stay on disk and jobs are untouched.
+    Sources with a queued/running job are kept so active work stays visible.
+    """
+    scope = (body.scope or "").strip().lower()
+    if scope not in {"sources", "results"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="scope must be 'sources' or 'results'.",
+        )
+    counts = db_mod.archive_uploads_for_user(int(user["id"]), scope=scope)
+    return {"scope": scope, **counts}
+
+
 @app.get("/api/uploads/{upload_id}")
 def get_upload(
     upload_id: int,
@@ -268,6 +292,10 @@ def create_upload_job(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Can only run jobs on source paper uploads.",
         )
+    if row.get("archived_at"):
+        # A job was requested on a cleared (hidden) source — e.g. from a stale
+        # tab. Surface the source again so the run is visible and cancellable.
+        db_mod.unarchive_upload(upload_id)
     job = db_mod.create_job(upload_id=upload_id, kind=kind)
     if kind == "pipeline":
         db_mod.update_job_stages(

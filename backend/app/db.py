@@ -98,6 +98,7 @@ def init_db() -> None:
         _ensure_column(conn, "uploads", "parent_upload_id", "INTEGER REFERENCES uploads(id)")
         _ensure_column(conn, "uploads", "kind", "TEXT NOT NULL DEFAULT 'source'")
         _ensure_column(conn, "jobs", "stages_json", "TEXT")
+        _ensure_column(conn, "uploads", "archived_at", "TEXT")
 
 
 def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
@@ -176,13 +177,94 @@ def list_uploads_for_user(user_id: int, *, limit: int = 50) -> List[Dict[str, An
             SELECT id, filename, size_bytes, status, uploaded_at, sha256,
                    parent_upload_id, kind
             FROM uploads
-            WHERE user_id = ?
+            WHERE user_id = ? AND archived_at IS NULL
             ORDER BY id DESC
             LIMIT ?
             """,
             (user_id, limit),
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def archive_uploads_for_user(user_id: int, *, scope: str) -> Dict[str, int]:
+    """Hide the caller's listed uploads without deleting anything on disk.
+
+    scope "sources" archives source uploads (skipping any with a queued or
+    running job); scope "results" archives job-output uploads (extraction,
+    literature review, solver attempt PDFs). Returns counts.
+    """
+    if scope not in {"sources", "results"}:
+        raise ValueError(f"Unknown archive scope: {scope}")
+    with db() as conn:
+        # UPDATE first, then count what stayed behind: both statements share
+        # the UPDATE's implicit transaction, so the reported counts cannot be
+        # skewed by a job finishing or queueing between two autocommit reads.
+        if scope == "sources":
+            cur = conn.execute(
+                """
+                UPDATE uploads
+                SET archived_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+                WHERE user_id = ? AND archived_at IS NULL
+                  AND (kind = 'source' OR kind IS NULL)
+                  AND NOT EXISTS (
+                    SELECT 1 FROM jobs j
+                    WHERE j.upload_id = uploads.id AND j.status IN ('queued', 'running')
+                  )
+                """,
+                (user_id,),
+            )
+            skipped = conn.execute(
+                """
+                SELECT COUNT(*) AS n FROM uploads u
+                WHERE u.user_id = ? AND u.archived_at IS NULL
+                  AND (u.kind = 'source' OR u.kind IS NULL)
+                  AND EXISTS (
+                    SELECT 1 FROM jobs j
+                    WHERE j.upload_id = u.id AND j.status IN ('queued', 'running')
+                  )
+                """,
+                (user_id,),
+            ).fetchone()
+            return {"archived": int(cur.rowcount), "skipped_active": int(skipped["n"])}
+        # Results: keep outputs that belong to a still-active job, so one
+        # run's artifacts are never split between hidden and visible.
+        cur = conn.execute(
+            """
+            UPDATE uploads
+            SET archived_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+            WHERE user_id = ? AND archived_at IS NULL
+              AND kind IS NOT NULL AND kind != 'source'
+              AND NOT EXISTS (
+                SELECT 1 FROM job_artifacts ja
+                JOIN jobs j ON j.id = ja.job_id
+                WHERE ja.upload_id = uploads.id AND j.status IN ('queued', 'running')
+              )
+            """,
+            (user_id,),
+        )
+        skipped = conn.execute(
+            """
+            SELECT COUNT(*) AS n FROM uploads u
+            WHERE u.user_id = ? AND u.archived_at IS NULL
+              AND u.kind IS NOT NULL AND u.kind != 'source'
+              AND EXISTS (
+                SELECT 1 FROM job_artifacts ja
+                JOIN jobs j ON j.id = ja.job_id
+                WHERE ja.upload_id = u.id AND j.status IN ('queued', 'running')
+              )
+            """,
+            (user_id,),
+        ).fetchone()
+        return {"archived": int(cur.rowcount), "skipped_active": int(skipped["n"])}
+
+
+def unarchive_upload(upload_id: int) -> None:
+    """Make an upload visible again (e.g. when a new job is queued on it)."""
+    with db() as conn:
+        conn.execute(
+            "UPDATE uploads SET archived_at = NULL WHERE id = ?",
+            (upload_id,),
+        )
 
 
 def get_upload_by_id(upload_id: int) -> Optional[Dict[str, Any]]:
