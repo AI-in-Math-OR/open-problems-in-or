@@ -26,24 +26,29 @@
       "solver_model": "gpt-5.6-sol"
     },
     {
+      "batch_id": "ec_2it_rerun",
+      "title": "two-iteration Codex ultra re-run",
+      "solver_model": "gpt-5.6-sol"
+    },
+    {
       "batch_id": "ec_base_base_56sol_ni",
       "title": "Codex xhigh first pass",
       "solver_model": "gpt-5.6-sol"
     },
     {
-      "batch_id": "mor_writeup_audit",
-      "title": "post-hoc verifier audit of website write-ups",
+      "batch_id": "mor_sweep_audit",
+      "title": "Opus 5 audit of MOR sweep solutions",
       "solver_model": "claude-opus-5"
     },
     {
-      "batch_id": "mor_sweep_audit",
-      "title": "Opus 5 audit of MOR sweep solutions",
+      "batch_id": "mor_writeup_audit",
+      "title": "post-hoc verifier audit of website write-ups",
       "solver_model": "claude-opus-5"
     }
   ],
   "counts": {
     "problems_scored": 158,
-    "attempts": 249
+    "attempts": 250
   },
   "problems": {
     "W2800787305_p0": {
@@ -97,20 +102,20 @@
     "W2965273013_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "2/3",
-          "score": 2,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -153,6 +158,14 @@
     "W3133568468_p0": {
       "attempts": [
         {
+          "batch_id": "mor_sweep_audit",
+          "batch_title": "Opus 5 audit of MOR sweep solutions",
+          "solver_model": "claude-opus-5",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        },
+        {
           "batch_id": "mor_writeup_audit",
           "batch_title": "post-hoc verifier audit of website write-ups",
           "solver_model": "claude-opus-5",
@@ -167,14 +180,6 @@
           "progress_score": "0/3",
           "score": 0,
           "final_status": "audit_rejected"
-        },
-        {
-          "batch_id": "mor_sweep_audit",
-          "batch_title": "Opus 5 audit of MOR sweep solutions",
-          "solver_model": "claude-opus-5",
-          "progress_score": "3/3",
-          "score": 3,
-          "final_status": "audit_approved"
         }
       ]
     },
@@ -415,6 +420,18 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "verified_iter1"
+        }
+      ]
+    },
+    "W4226364838_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_sweep_audit",
+          "batch_title": "Opus 5 audit of MOR sweep solutions",
+          "solver_model": "claude-opus-5",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
         }
       ]
     },
@@ -687,6 +704,14 @@
           "progress_score": "1/3",
           "score": 1,
           "final_status": "repair_exhausted"
+        },
+        {
+          "batch_id": "ec_2it_rerun",
+          "batch_title": "two-iteration Codex ultra re-run",
+          "solver_model": "gpt-5.6-sol",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "verified_iter1"
         }
       ]
     },
@@ -717,20 +742,20 @@
     "W4377821221_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "2/3",
-          "score": 2,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -1418,16 +1443,8 @@
         }
       ]
     },
-    "W4389193896_p0": {
+    "W4388912937_p0": {
       "attempts": [
-        {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "1/3",
-          "score": 1,
-          "final_status": "audit_rejected"
-        },
         {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
@@ -1435,6 +1452,26 @@
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        }
+      ]
+    },
+    "W4389193896_p0": {
+      "attempts": [
+        {
+          "batch_id": "mor_sweep_audit",
+          "batch_title": "Opus 5 audit of MOR sweep solutions",
+          "solver_model": "claude-opus-5",
+          "progress_score": "3/3",
+          "score": 3,
+          "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -1649,20 +1686,20 @@
     "W4396625954_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "1/3",
-          "score": 1,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -1837,20 +1874,20 @@
     "W4403279582_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "1/3",
-          "score": 1,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -1869,20 +1906,20 @@
     "W4403683873_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "1/3",
-          "score": 1,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -1937,20 +1974,20 @@
     "W4405512051_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "1/3",
-          "score": 1,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -2005,20 +2042,20 @@
     "W4408446556_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "1/3",
-          "score": 1,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "1/3",
+          "score": 1,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -2133,20 +2170,20 @@
     "W4410395976_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "2/3",
-          "score": 2,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -2233,20 +2270,20 @@
     "W4411879499_p0": {
       "attempts": [
         {
-          "batch_id": "mor_writeup_audit",
-          "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "2/3",
-          "score": 2,
-          "final_status": "audit_rejected"
-        },
-        {
           "batch_id": "mor_sweep_audit",
           "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
           "final_status": "audit_approved"
+        },
+        {
+          "batch_id": "mor_writeup_audit",
+          "batch_title": "post-hoc verifier audit of website write-ups",
+          "solver_model": "claude-opus-5",
+          "progress_score": "2/3",
+          "score": 2,
+          "final_status": "audit_rejected"
         }
       ]
     },
@@ -2639,30 +2676,6 @@
         {
           "batch_id": "mor_writeup_audit",
           "batch_title": "post-hoc verifier audit of website write-ups",
-          "solver_model": "claude-opus-5",
-          "progress_score": "3/3",
-          "score": 3,
-          "final_status": "audit_approved"
-        }
-      ]
-    },
-    "W4226364838_p0": {
-      "attempts": [
-        {
-          "batch_id": "mor_sweep_audit",
-          "batch_title": "Opus 5 audit of MOR sweep solutions",
-          "solver_model": "claude-opus-5",
-          "progress_score": "3/3",
-          "score": 3,
-          "final_status": "audit_approved"
-        }
-      ]
-    },
-    "W4388912937_p0": {
-      "attempts": [
-        {
-          "batch_id": "mor_sweep_audit",
-          "batch_title": "Opus 5 audit of MOR sweep solutions",
           "solver_model": "claude-opus-5",
           "progress_score": "3/3",
           "score": 3,
