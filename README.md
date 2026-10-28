@@ -40,4 +40,4 @@ The Upload tab talks to whatever `SITE_CONFIG.uploadApiBaseUrl` is in `js/site-c
 
 ## Maintainers
 
-Eric Fithian, Rad Niazadeh, Pranav Nuti
+Eric Fithian, Rad Niazadeh, Pranav Nuti, Pete Westbrook, Jiechen Zhang, Michael Cho
